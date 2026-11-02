@@ -9,6 +9,7 @@ import { TrustBankCase } from './components/case/TrustBankCase';
 import { PlaceholderCase } from './components/case/PlaceholderCase';
 import { CaseReveal } from './components/case/CaseReveal';
 import { ImageLightbox } from './components/case/ImageLightbox';
+import { VideoHoverPause } from './components/case/VideoHoverPause';
 import { CursorTrail } from './components/CursorTrail';
 
 const CASE_ROUTES = ['#/trust-bank', '#/gamecove', '#/utrada'];
@@ -42,8 +43,10 @@ export function App() {
 
       {route ? (
         // case-grid: same faint grid background as the home page; CaseReveal: gentle fade-up on scroll;
-        // ImageLightbox: hover-zoom and click-to-enlarge for images. key=route so each case starts fresh.
+        // ImageLightbox: hover-zoom and click-to-enlarge for images. VideoHoverPause: hovering a motion piece pauses it.
+        // key=route so each case starts fresh.
         <div className="case-grid" key={route}>
+          <VideoHoverPause />
           <ImageLightbox>
             <CaseReveal>
               {route === '#/trust-bank' && <TrustBankCase onClose={closeCase} />}
