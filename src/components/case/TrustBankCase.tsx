@@ -1,0 +1,697 @@
+import React, { useEffect } from 'react';
+import { CaseNav } from './CaseNav';
+import { ASSETS } from '../../data/content';
+
+/**
+ * Trust Bank case study — built from Figma "Trust Bank_v.12-10" (file 44기 김지현 4차 랜딩페이지).
+ * Layout follows the 1920 frame: a 1440px content column, 700 / 40 / 700 two-column rows.
+ * Text is real text; dense visuals (boards, diagrams, phone screens, photos) are Figma exports
+ * hosted in Harbor-K/harbor-pf/assets/trust-bank.
+ * Top bar: CaseNav — the home page's boxed tray style with Back / next project.
+ * Hero + Process visuals: Harbor's motion pieces (her GIFs, converted to silent looping MP4s for size).
+ * Overview follows Figma "Section / Overview" (node 1026:2000): Problem, Solution, Impact (23/30 · 85 · 6/6).
+ * Magnifier (hover zoom + click to enlarge) only on the thematic-analysis board (data-zoom).
+ */
+
+const A = '/assets/trust-bank/';
+const IMG = {
+  logo: A + 'logo.svg',
+  heroVideo: A + 'hero-motion.mp4',
+  heroPoster: A + 'hero-motion-poster.jpg',
+  processVideo: A + 'process-motion.mp4',
+  processPoster: A + 'process-motion-poster.jpg',
+  article: A + 'article.png',
+  interview: A + 'interview.png',
+  table: A + 'table.png',
+  thematic: A + 'thematic.png',
+  heard: A + 'heard.png',
+  affinity: A + 'affinity.png',
+  journey: A + 'journey.png',
+  hmw: A + 'hmw.png',
+  dvf: A + 'dvf.png',
+  sketchPhoto: A + 'sketch-photo.png',
+  ideas: A + 'ideas.png',
+  deliver: A + 'deliver.png',
+  ut: A + 'ut-session.png',
+  fix1: A + 'fix1.png',
+  fix34: A + 'fix34.png',
+  reflection: A + 'reflection.png',
+};
+
+const INK = '#000d10';
+const BLUE = '#009ddc';
+const SKY = '#ebf7fc';
+const ASH = '#8e8e95';
+const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+const INTER = 'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif';
+
+/* ---------- small building blocks ---------- */
+
+function Container({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return <div className={`relative mx-auto w-full max-w-[1440px] px-6 min-[1488px]:px-0 ${className}`}>{children}</div>;
+}
+
+function Eyebrow({ label, light = false }: { label: string; light?: boolean }) {
+  const c = light ? '#ffffff' : ASH;
+  return (
+    <div className="flex items-center gap-[10px]" style={{ fontFamily: HELV }}>
+      <span className="block w-4 h-4" style={{ backgroundColor: c }} />
+      <span className="text-[17px] leading-[1.4]" style={{ color: c }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function H2({ children, color = INK, className = '' }: { children: React.ReactNode; color?: string; className?: string }) {
+  return (
+    <h2 className={`text-[30px] md:text-[37px] leading-[1.1] tracking-[-0.01em] font-bold ${className}`} style={{ fontFamily: HELV, color }}>
+      {children}
+    </h2>
+  );
+}
+
+function Body({ children, className = '', color = INK }: { children: React.ReactNode; className?: string; color?: string }) {
+  return (
+    <p className={`text-[17px] md:text-[18px] leading-[29px] ${className}`} style={{ fontFamily: HELV, color }}>
+      {children}
+    </p>
+  );
+}
+
+function Img({ src, alt, className = '', style, zoom = false }: { src: string; alt: string; className?: string; style?: React.CSSProperties; zoom?: boolean }) {
+  return <img src={src} alt={alt} loading="lazy" data-zoom={zoom ? 'true' : undefined} className={`block w-full h-auto ${className}`} style={style} />;
+}
+
+/** silent looping motion piece (converted from Harbor's GIFs) */
+function Motion({ src, poster, ratio, label, className = '', bg }: { src: string; poster: string; ratio: string; label: string; className?: string; bg: string }) {
+  return (
+    <div className={`overflow-hidden ${className}`} style={{ aspectRatio: ratio, background: bg }}>
+      <video className="block w-full h-full object-cover" src={src} poster={poster} autoPlay muted loop playsInline preload="auto" aria-label={label} />
+    </div>
+  );
+}
+
+/** Board exports carry their drop shadow, so they are a little wider than the 1440 column. */
+function ShadowedImg({ src, alt, natural, column = 1440 }: { src: string; alt: string; natural: number; column?: number }) {
+  const over = (natural - column) / column; // extra width ratio
+  return (
+    <div style={{ marginLeft: `${(-over / 2) * 100}%`, marginRight: `${(-over / 2) * 100}%` }}>
+      <Img src={src} alt={alt} />
+    </div>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex flex-col gap-1" style={{ fontFamily: INTER }}>
+      <p className="text-[44px] md:text-[52px] leading-[63px] tracking-[0.01em]" style={{ color: BLUE }}>
+        {value}
+      </p>
+      <p className="text-[16px] leading-[1.43] text-[#767676]">{label}</p>
+    </div>
+  );
+}
+
+/* ---------- sections ---------- */
+
+function HeroSection() {
+  return (
+    <section className="bg-white pt-28 md:pt-[120px] pb-20">
+      <Container>
+        <img src={IMG.logo} alt="trust" className="h-[29px] w-auto" />
+        <h1
+          className="mt-10 md:mt-[38px] text-[40px] md:text-[63px] leading-none tracking-[-0.02em] font-bold max-w-[720px]"
+          style={{ fontFamily: HELV, color: INK }}
+        >
+          Turning hidden rewards
+          <br />
+          into everyday loyalty
+        </h1>
+        <Body className="mt-8 md:mt-[31px] max-w-[760px]">
+          Helping people find and use their rewards in a digital bank
+          <br />
+          Trust Bank (Singapore) · UX case study
+        </Body>
+
+        {/* hero motion: 1440x720, silent loop */}
+        <Motion
+          src={IMG.heroVideo}
+          poster={IMG.heroPoster}
+          ratio="2 / 1"
+          bg="#049ddc"
+          className="mt-10 md:mt-[30px] rounded-[24px]"
+          label="Trust Bank rewards: linking FairPrice in one tap and watching every payment fill the Linkpoints bar"
+        />
+
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8" style={{ fontFamily: HELV, color: INK }}>
+          <div>
+            <p className="text-[17px] leading-[1.4]">TIMELINE</p>
+            <p className="mt-2 text-[18px] leading-[29px]">8 weeks June – August 2026</p>
+          </div>
+          <div>
+            <p className="text-[17px] leading-[1.4]">TEAM &amp; ROLE</p>
+            <p className="mt-2 text-[18px] leading-[29px]">
+              2 designers
+              <br />
+              I led: Planning, UI Design, Usability test
+              <br />
+              Together: Research synthesis ideation, Testing
+            </p>
+          </div>
+          <div>
+            <p className="text-[17px] leading-[1.4]">INDUSTRY</p>
+            <p className="mt-2 text-[18px] leading-[29px]">Fintech, Digital banking, Mobile app</p>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function OverviewRow({ label, children, className = '' }: { label: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`grid grid-cols-1 md:grid-cols-[370px_1fr] gap-4 md:gap-0 ${className}`}>
+      <p className="text-[23px] leading-[1.2] tracking-[-0.01em] font-bold" style={{ fontFamily: HELV, color: INK }}>
+        {label}
+      </p>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+// Figma "Section / Overview": Problem (y 216) → Solution (y 367) → Impact (y 512); 1920 frame, 240 margin
+function OverviewSection() {
+  return (
+    <section className="bg-white py-[120px]">
+      <Container>
+        <Eyebrow label="OVERVIEW" />
+        <OverviewRow label="The problem" className="mt-[72px]">
+          <Body className="max-w-[944px]">
+            Trust Bank works with FairPrice, a supermarket chain. Over 1 million people joined Trust Bank, 70% through a friend’s invite bonus, but only 17%
+            made it their main bank. So we interviewed users to find out why. Of the problems we found, we focused on rewards: FairPrice rewards are Trust
+            Bank’s biggest strength, but users weren’t using them.
+          </Body>
+        </OverviewRow>
+
+        <OverviewRow label="Solution" className="mt-[64px]">
+          <Body className="max-w-[928px]">
+            If users can find their rewards and know how to use them, they have a reason to come back. That builds loyalty. So we set two goals. Easy to find:
+            show each user the rewards that fit them. Easy to use: show the rules and the next step.
+          </Body>
+        </OverviewRow>
+
+        <OverviewRow label="Impact" className="mt-[58px]">
+          {/* Figma: stats at x 638 / 994 / 1350, dividers at 965 / 1321 → columns 355 / 356 / rest, 28px inset */}
+          <div className="grid grid-cols-1 sm:grid-cols-[355px_356px_1fr]">
+            <div className="py-2 sm:pl-7">
+              <Stat value="23/30" label="tasks done without help" />
+            </div>
+            <div className="py-2 sm:pl-7 sm:border-l border-[rgba(0,13,16,0.12)]">
+              <Stat value="85" label="ease-of-use score (A+)" />
+            </div>
+            <div className="py-2 sm:pl-7 sm:border-l border-[rgba(0,13,16,0.12)]">
+              <Stat value="6/6" label="said they’d keep using it" />
+            </div>
+          </div>
+        </OverviewRow>
+      </Container>
+    </section>
+  );
+}
+
+function ProcessSection() {
+  return (
+    <section className="py-[120px]" style={{ backgroundColor: SKY }}>
+      <Container>
+        <Eyebrow label="PROCESS" />
+        <H2 className="mt-4">From problem to solution</H2>
+        {/* process motion: 1440x824, silent loop */}
+        <Motion
+          src={IMG.processVideo}
+          poster={IMG.processPoster}
+          ratio="1440 / 824"
+          bg="#ecf7fd"
+          className="mt-[30px] rounded-[20px]"
+          label="Double diamond: Discover, Define, Develop, Deliver with the methods used in each step"
+        />
+      </Container>
+    </section>
+  );
+}
+
+function TwoCol({ left, right, className = '', align = 'start' }: { left: React.ReactNode; right: React.ReactNode; className?: string; align?: 'start' | 'center' }) {
+  return (
+    <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 ${align === 'center' ? 'md:items-center' : 'items-start'} ${className}`}>
+      <div className="min-w-0">{left}</div>
+      <div className="min-w-0">{right}</div>
+    </div>
+  );
+}
+
+function DiscoverSection() {
+  return (
+    <section className="bg-white pt-[120px] pb-[120px]">
+      <Container>
+        <TwoCol
+          left={
+            <>
+              <Eyebrow label="DISCOVER" />
+              <H2 className="mt-4">
+                What reports said
+                <br />
+                Only 17% use it as their main bank
+              </H2>
+              <Body className="mt-4">
+                Reports showed how few users make it their main bank, but not why.
+                <br />
+                So we wanted to know, why don’t users make Trust Bank their main bank?
+              </Body>
+            </>
+          }
+          right={
+            <div className="md:pt-[47px]">
+              <Img src={IMG.article} alt="News article: only 17% of Trust Bank users use it as their main bank" className="rounded-[12px]" />
+              <p className="mt-3 text-[15px] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+                Source: The Asian Banker (May 2026)
+              </p>
+            </div>
+          }
+        />
+
+        <TwoCol
+          className="mt-[160px]"
+          left={
+            <>
+              <H2>
+                What users said
+                <br />
+                Rewards got them in, but not back
+              </H2>
+              <Body className="mt-4">
+                We interviewed 3 users. Some reasons were out of our hands. For example, their salary went to another bank. But one problem was about Trust
+                Bank’s biggest strength: rewards. All 3 joined for an invite bonus or promo. But the rewards didn’t bring them back.
+              </Body>
+              <Img src={IMG.table} alt="Interviewees: 3 participants, their main bank and how they used rewards" className="mt-[30px]" />
+            </>
+          }
+          right={
+            <div className="md:pt-[244px] md:pl-[13px]">
+              <Img src={IMG.interview} alt="Interview session recording, 1 of 3" className="rounded-[12px]" />
+            </div>
+          }
+        />
+
+        <div className="mt-[123px]">
+          {/* the only image with the magnifier (hover zoom + click to enlarge) */}
+          <Img src={IMG.thematic} alt="Thematic analysis of 3 interviews: 5 themes, 19 codes and quotes" className="rounded-[20px]" zoom />
+        </div>
+
+        <TwoCol
+          className="mt-[119px]"
+          left={<Img src={IMG.heard} alt="Our guess: Linkpoints are FairPrice points. 9B+ earned, 0 of 3 interviewees stayed for rewards" />}
+          right={
+            <div className="md:pt-4">
+              <H2>
+                What the data said
+                <br />
+                Points earned, but not used
+              </H2>
+              <Body className="mt-4">
+                Our 3 users barely used Trust Bank’s rewards. So we went back to the data. How many points do Trust Bank users actually earn?
+              </Body>
+              <Body className="mt-6">
+                Trust Bank already gives out billions of points, but for the users we spoke to, they weren’t a reason to come back. Its biggest strength was going
+                to waste. Was our guess right? We went back to our interview notes to check.
+              </Body>
+            </div>
+          }
+        />
+      </Container>
+    </section>
+  );
+}
+
+function DefineSection() {
+  return (
+    <section style={{ backgroundColor: SKY }}>
+      <Container className="pt-[120px] pb-[120px]">
+        <Eyebrow label="DEFINE" />
+        <H2 className="mt-4">Grouping what we heard: 3 patterns</H2>
+        <Body className="mt-4 max-w-[700px]">
+          To check our assumtion, we went back to our interview notes. We wrote each thing users said on a note. Then we grouped similar notes. 3 patterns came
+          up more than once.
+        </Body>
+        <div className="mt-[30px]">
+          <ShadowedImg src={IMG.affinity} natural={1504} alt="Affinity diagram: 42 notes from 3 interviews, 5 groups, 3 patterns — Unseen, Elsewhere, Not worth it" />
+        </div>
+      </Container>
+
+      {/* problem statement band */}
+      <div className="bg-[#cdeefc] py-[22px]">
+        <Container>
+          <div className="rounded-[20px] bg-white px-6 py-12 md:py-[50px] text-center" style={{ fontFamily: HELV, color: INK }}>
+            <p className="text-[15px] md:text-[17px] leading-[1.4]">PROBLEM STATEMENT</p>
+            <p className="mt-5 text-[28px] md:text-[50px] leading-[1.25] font-bold tracking-[-0.01em]">
+              Users are not aware of the rewards system.
+              <br />
+              So the business <span style={{ color: BLUE }}>fails to earn loyalty</span>.
+            </p>
+          </div>
+        </Container>
+      </div>
+
+      <Container className="pt-[120px] pb-[120px]">
+        <H2>
+          Two personas, one journey
+          <br />
+          Both get stuck at first use
+        </H2>
+        <Body className="mt-4 max-w-[700px]">
+          Who has this problem, and when do rewards get lost? We made 2 personas from our interviews. A persona is an example user built from real interview
+          answers. Mei is a student. Daniel is an engineer.
+        </Body>
+        <div className="mt-[70px]">
+          <ShadowedImg src={IMG.journey} natural={1552} alt="Journey map for Mei and Daniel: both drop at first use, the breaking point" />
+        </div>
+        <p className="mt-2 text-[15px] md:text-[17px] leading-[1.4] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+          Quotes are paraphrased from our interviews, not word for word.
+        </p>
+
+        <div className="mt-[80px] grid grid-cols-1 md:grid-cols-[440px_1fr] gap-10 items-center">
+          <div>
+            <H2>HOW MIGHT WE</H2>
+            <Body className="mt-8">
+              Both personas get stuck at first use.
+              <br />
+              That is when rewards feel scattered and unclear.
+              <br />
+              We turned this into 3 questions for our ideas:
+            </Body>
+          </div>
+          <div className="md:max-w-[1000px] md:ml-auto w-full">
+            <Img src={IMG.hmw} alt="HMW 1: Show the right reward just before users buy? HMW 2: Show the rewards users want at a glance? HMW 3: Make collecting points feel worth it?" />
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function DevelopSection() {
+  return (
+    <section className="bg-white pt-[120px] pb-[120px]">
+      <Container>
+        <Eyebrow label="DEVELOP" />
+        <H2 className="mt-4">
+          3 ideas, each from a pain point
+          <br />
+          we found
+        </H2>
+        <Body className="mt-4 max-w-[700px]">
+          Our 3 questions gave us 26 ideas. We mapped each one by how important it was and whether we had evidence for it. 6 passed, and we checked them
+          against DVF: Do users want it? Does it help the bank? Can we build it?
+        </Body>
+        <div className="mt-[30px]">
+          <ShadowedImg src={IMG.dvf} natural={1504} alt="DVF assumption map: 25 ideas sorted by importance and evidence, 6 passed" />
+        </div>
+
+        <div className="mt-[110px] grid grid-cols-1 md:grid-cols-[1fr_460px] gap-10 items-start">
+          <Body className="max-w-[950px]">
+            Then we sketched 1 idea for each pain point. 2 came from the 6 passed ideas. We added a third for question 3, about points. Finding 3 had already
+            shown users needed it.
+          </Body>
+          <Img src={IMG.sketchPhoto} alt="Sketching session photo" className="rounded-[16px]" />
+        </div>
+
+        <div className="mt-[30px]">
+          <Img src={IMG.ideas} alt="Idea sketches: 1 Coupons that find you, 2 One rewards hub, 3 Points you can see grow" />
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function DeliverSection() {
+  return (
+    <section className="pt-[120px] pb-[120px]" style={{ backgroundColor: SKY }}>
+      <Container>
+        <Eyebrow label="DELIVER" />
+        <H2 className="mt-4">
+          The design we tested:
+          <br />
+          3 features, 7 key screens
+        </H2>
+        <Body className="mt-4 max-w-[700px]">
+          Each feature solves one pain point. Features 1 and 2 make rewards easy to find. Feature 3 makes them easy to use. [ Try the clickable prototype ]
+        </Body>
+        <div className="mt-[30px]">
+          <Img src={IMG.deliver} alt="Final design: coupons that find you, one rewards hub, points you can see grow" />
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function FixBlock({
+  kicker,
+  title,
+  body,
+  stat,
+  statLabel,
+  img,
+  alt,
+}: {
+  kicker: string;
+  title: React.ReactNode;
+  body: string;
+  stat: string;
+  statLabel: string;
+  img: string;
+  alt: string;
+}) {
+  return (
+    <div className="max-w-[1255px]">
+      <div className="grid grid-cols-1 md:grid-cols-[700px_1fr] gap-6 md:gap-10">
+        <div style={{ fontFamily: HELV }}>
+          <p className="text-[17px] leading-[1.4]" style={{ color: INK }}>
+            {kicker}
+          </p>
+          <p className="mt-[6px] text-[23px] leading-[1.2] font-bold text-[#333]">{title}</p>
+          <Body className="mt-9">{body}</Body>
+        </div>
+        <div style={{ fontFamily: HELV }} className="md:pt-[30px]">
+          <p className="text-[52px] leading-[1.1] font-bold text-[#333]">{stat}</p>
+          <p className="mt-[23px] text-[18px] leading-[29px] text-[#333]">{statLabel}</p>
+        </div>
+      </div>
+      <div className="mt-10 max-w-[640px]">
+        <Img src={img} alt={alt} />
+      </div>
+    </div>
+  );
+}
+
+function TestSection() {
+  return (
+    <section className="bg-white pt-[120px] pb-[120px]">
+      <Container>
+        <Eyebrow label="TEST" />
+        <H2 className="mt-4">
+          Usability testing:
+          <br />
+          finding points was the hardest part
+        </H2>
+        <Body className="mt-4 max-w-[700px]">
+          6 users tried 5 everyday tasks. Then they rated how easy the app was with a SUS survey. 4 were general users and 2 worked in IT. All results are in [
+          one shared sheet ]
+        </Body>
+
+        {/* assumption → validated */}
+        <div className="mt-[30px] rounded-[20px] border border-[rgba(0,13,16,0.1)] bg-white px-6 md:px-[30px] py-7 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-8 items-center" style={{ fontFamily: INTER }}>
+          <div>
+            <p className="text-[13px] tracking-[0.08em] text-[#8e8e95]">OUR ASSUMPTION</p>
+            <p className="mt-2 text-[19px] md:text-[22px] leading-[1.4] font-medium text-[#000d10]">If Linkpoints are easier to reach, users will use Trust Bank more often.</p>
+          </div>
+          <span className="text-[28px] hidden md:block" style={{ color: BLUE }}>
+            →
+          </span>
+          <div>
+            <p className="text-[13px] tracking-[0.08em]" style={{ color: BLUE }}>
+              VALIDATED IN TESTING
+            </p>
+            <p className="mt-2 text-[19px] md:text-[22px] leading-[1.4] font-medium text-[#000d10]">
+              Easier access worked: 77% of tasks were done without help, and every user said they’d keep using it.
+            </p>
+          </div>
+        </div>
+
+        {/* key numbers */}
+        <div className="mt-[30px] grid grid-cols-1 sm:grid-cols-3 gap-8 px-[30px]" style={{ fontFamily: INTER }}>
+          <div>
+            <p className="text-[52px] leading-[1.1] font-bold" style={{ color: BLUE }}>
+              77%
+            </p>
+            <p className="mt-5 text-[17px] font-semibold text-[#000d10]">tasks done without help</p>
+          </div>
+          <div>
+            <p className="text-[52px] leading-[1.1] font-bold" style={{ color: BLUE }}>
+              85
+            </p>
+            <p className="mt-5 text-[17px] font-semibold text-[#000d10]">ease-of-use score (SUS)</p>
+            <p className="text-[17px] text-[#767676]">Out of 100 · A+ grade</p>
+            <div className="relative mt-4 h-[6px] max-w-[380px] rounded-full bg-[#e6eef1]">
+              <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: '85%', backgroundColor: BLUE }} />
+              <div className="absolute -top-[5px] w-[2px] h-4 bg-[#000d10]" style={{ left: '68%' }} />
+            </div>
+            <div className="relative mt-2 max-w-[380px] text-[12px] text-[#767676] h-4">
+              <span className="absolute left-0">0</span>
+              <span className="absolute -translate-x-1/2" style={{ left: '68%' }}>
+                68 = average
+              </span>
+              <span className="absolute right-0">100</span>
+            </div>
+          </div>
+          <div>
+            <p className="text-[52px] leading-[1.1] font-bold" style={{ color: BLUE }}>
+              100%
+            </p>
+            <p className="mt-5 text-[17px] font-semibold text-[#000d10]">said they’d keep using it</p>
+          </div>
+        </div>
+
+        {/* masked usability-test session */}
+        <div className="relative mt-[40px] rounded-[12px] overflow-hidden">
+          <Img src={IMG.ut} alt="Remote usability test session on the prototype (participant masked)" />
+          <div
+            className="absolute backdrop-blur-xl bg-white/10 rounded-[6px]"
+            style={{ left: `${(1061 / 1440) * 100}%`, top: `${(355 / 610) * 100}%`, width: `${(182 / 1440) * 100}%`, height: `${(243 / 610) * 100}%` }}
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* what we changed */}
+        <div className="mt-[120px]">
+          <H2 color="#333">What we changed after testing</H2>
+          <Body className="mt-5 max-w-[700px]" color="#333">
+            6 users showed us 16 issues, and we made 7 fixes. The 2 below fixed the hardest tasks; the other 5 were smaller copy and layout changes. We haven’t
+            re-tested yet.
+          </Body>
+
+          <div className="mt-[100px]">
+            <FixBlock
+              kicker="Fix 1 · Show what each milestone unlocks"
+              title={
+                <>
+                  Users saw their points,
+                  <br />
+                  but not what they were for
+                </>
+              }
+              body="Each milestone now shows the reward it unlocks. Users know why to keep collecting, so they have a reason to keep using the app."
+              stat="33%"
+              statLabel="checked their points without help"
+              img={IMG.fix1}
+              alt="Fix 1 as-is vs to-be: the points bar now shows what each milestone unlocks"
+            />
+          </div>
+          <div className="mt-[120px]">
+            <FixBlock
+              kicker="Fix 3 + 4 · Every reward one tap away"
+              title={
+                <>
+                  Rewards were there,
+                  <br />
+                  but hard to spot
+                </>
+              }
+              body="Trust+ moved to the top, so the premium level is seen first. Coupons and stamps got their own sections with See All, so no reward is hidden."
+              stat="50%"
+              statLabel="needed a hint to find a reward"
+              img={IMG.fix34}
+              alt="Fix 3 + 4 as-is vs to-be: Trust+ on top, coupons and stamps with See All"
+            />
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function ReflectionSection() {
+  return (
+    <section className="bg-[#002742] pt-[120px] pb-[120px]" style={{ fontFamily: INTER }}>
+      <Container>
+        <Eyebrow label="REFLECTION" light />
+        <div className="mt-4 flex flex-col md:flex-row gap-12 md:gap-[120px] items-start">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[30px] md:text-[37px] leading-[1.1] tracking-[-0.01em] font-bold text-white">Takeaways</h2>
+            <div className="mt-[30px] flex flex-col gap-4 text-[17px] md:text-[18px] leading-[29px] text-white/80">
+              <p>I learned to measure what users notice, not what the system records. 9 billion points meant little to users who never saw them.</p>
+              <p>
+                I also learned to pick a problem design can change. “Make Trust Bank their main bank” was too big, but “make rewards easy to find” was
+                something we could test.
+              </p>
+              <p>Last, rewards cost the bank money, because unused points are money it owes. They only pay off if they keep users coming back.</p>
+            </div>
+          </div>
+          <div className="w-full md:w-[460px] shrink-0">
+            <Img src={IMG.reflection} alt="Harbor working on the Trust Bank design" className="rounded-[16px]" />
+          </div>
+        </div>
+
+        <div className="mt-[80px]">
+          <p className="pb-4 text-[14px] leading-[20px] font-medium tracking-[0.04em] text-white/50">Next Steps</p>
+          <div className="flex gap-6 py-3">
+            <span className="w-10 shrink-0 text-[20px] md:text-[22px] leading-[30px] font-medium text-white/45">01</span>
+            <p className="text-[20px] md:text-[22px] leading-[30px] font-medium text-white">
+              Apply the 3 remaining fixes from the test, then re-test the points journey with new users.
+            </p>
+          </div>
+          <div className="flex gap-6 py-3">
+            <span className="w-10 shrink-0 text-[20px] md:text-[22px] leading-[30px] font-medium text-white/45">02</span>
+            <div>
+              <p className="text-[20px] md:text-[22px] leading-[30px] font-medium text-white">
+                After that, pilot the FairPrice link and measure two numbers that show whether rewards bring people back:
+              </p>
+              <p className="mt-2 text-[18px] leading-[26px] font-medium whitespace-pre-wrap" style={{ color: BLUE }}>
+                {'FairPrice link rate  ·  30-day retention'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ---------- page ---------- */
+
+export function TrustBankCase({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="relative w-full min-h-screen bg-white overflow-x-clip" style={{ color: INK }}>
+      {/* next project is worked out inside CaseNav from the URL (Trust Bank -> GameCove) */}
+      <CaseNav onBack={onClose} next={{ name: 'GameCove', icon: ASSETS.gamecove, onGo: onClose }} />
+      <main>
+        <HeroSection />
+        <OverviewSection />
+        <ProcessSection />
+        <DiscoverSection />
+        <DefineSection />
+        <DevelopSection />
+        <DeliverSection />
+        <TestSection />
+        <ReflectionSection />
+      </main>
+    </div>
+  );
+}
