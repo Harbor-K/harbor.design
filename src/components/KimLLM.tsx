@@ -13,7 +13,8 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
  * (English and Korean) to a short answer written only from what is already on this site,
  * then typed out. The footnote says so. Swap `answer()` for an API call when a backend exists.
  *
- * Header: a brain icon next to the KIM LLM dot-type name (replaced the blinking dot).
+ * Header: a brain icon next to the KIM LLM dot-type name (replaced the blinking dot),
+ * sized so its drawing is as tall as the dot letters (7 rows x 3.9px).
  * Icon chips under the input: Clear, Work (asks about her work), Food (her food & drink fun fact),
  * and WhatsApp — opens a small WhatsApp-style chat card (after the "Chat on WhatsApp" reference)
  * with a button that opens WhatsApp.
@@ -170,8 +171,8 @@ export function KimLLM() {
       {/* header */}
       <div className="flex items-start justify-between gap-4">
         <h3 className="font-inter-tight display-tight text-[30px] md:text-[40px] leading-tight">Ask me anything...</h3>
-        <div className="flex items-center gap-2.5 pt-3 shrink-0" aria-label="Kim LLM">
-          <BrainIcon className="w-5 h-5 text-[#3B5BD9]" strokeWidth={2} aria-hidden="true" />
+        <div className="flex items-center gap-2.5 pt-2 shrink-0" aria-label="Kim LLM">
+          <BrainIcon className="w-[31px] h-[31px] shrink-0 text-[#3B5BD9]" strokeWidth={1.8} aria-hidden="true" />
           <DotMatrix text="KIM LLM" dotPx={3} pitchPx={3.9} color="#1C2541" mode="static" alive={false} />
         </div>
       </div>
