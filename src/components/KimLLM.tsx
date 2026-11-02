@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpIcon, BriefcaseIcon, UtensilsIcon, XIcon, SendIcon } from 'lucide-react';
+import { ArrowUpIcon, BrainIcon, BriefcaseIcon, UtensilsIcon, XIcon, SendIcon } from 'lucide-react';
 import { DotMatrix } from './DotMatrix';
 import { BOOK_CALL_URL, EMAIL } from '../data/content';
 import { WHATSAPP_URL } from '../data/links';
@@ -13,6 +13,7 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
  * (English and Korean) to a short answer written only from what is already on this site,
  * then typed out. The footnote says so. Swap `answer()` for an API call when a backend exists.
  *
+ * Header: a brain icon next to the KIM LLM dot-type name (replaced the blinking dot).
  * Icon chips under the input: Clear, Work (asks about her work), Food (her food & drink fun fact),
  * and WhatsApp — opens a small WhatsApp-style chat card (after the "Chat on WhatsApp" reference)
  * with a button that opens WhatsApp.
@@ -170,10 +171,7 @@ export function KimLLM() {
       <div className="flex items-start justify-between gap-4">
         <h3 className="font-inter-tight display-tight text-[30px] md:text-[40px] leading-tight">Ask me anything...</h3>
         <div className="flex items-center gap-2.5 pt-3 shrink-0" aria-label="Kim LLM">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-[#3B5BD9] opacity-60 animate-ping" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#3B5BD9]" />
-          </span>
+          <BrainIcon className="w-5 h-5 text-[#3B5BD9]" strokeWidth={2} aria-hidden="true" />
           <DotMatrix text="KIM LLM" dotPx={3} pitchPx={3.9} color="#1C2541" mode="static" alive={false} />
         </div>
       </div>
