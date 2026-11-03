@@ -52,7 +52,7 @@ const IMG = {
   ut: A + 'ut-session.png',
   fix1: A + 'fix1.png',
   fix34: A + 'fix34.png',
-  reflection: A + 'reflection.png',
+  reflection: A + 'takeaway.jpg',
 };
 
 const INK = '#000d10';
@@ -945,7 +945,7 @@ function ReflectionSection() {
             </div>
           </div>
           <div className="w-full md:w-[460px] shrink-0">
-            <Img src={IMG.reflection} alt="Harbor working on the Trust Bank design" className="rounded-[16px]" />
+            <Img src={IMG.reflection} alt="Harbor presenting the Trust Bank design to her team" className="rounded-[16px]" />
           </div>
         </div>
 
