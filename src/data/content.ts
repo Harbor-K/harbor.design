@@ -57,23 +57,27 @@ export interface Company {
   category: string;
   image?: string;
   highlight: string; // one-line achievement shown under the coin
+  years: string; // small grey line above the name
 }
 
 export const COMPANIES: Company[] = [
   {
     name: 'UTrada',
+    years: '2024-2026',
     category: 'Trading platform',
     image: ASSETS.utrada,
     highlight: 'Built a 100+ component design system for a global trading platform — 40% faster dev cycles.',
   },
   {
     name: 'ETO Markets',
+    years: '2022-2023',
     category: 'Trading UI/UX',
     image: ASSETS.etoMarkets,
     highlight: 'Revamped the trading platform with 9-language support — 30% more users from Asia and Europe.',
   },
   {
     name: 'Pinetree',
+    years: '2021-2022',
     category: 'E-learning',
     image: ASSETS.pinetree,
     highlight: 'Redesigned the information architecture and landing pages for clearer navigation.',

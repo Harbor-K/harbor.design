@@ -164,7 +164,7 @@ export function AffinityScroll() {
   return (
     <div ref={outer} className="relative" style={{ height: `calc(${Math.round(943 * scale)}px + 180vh)` }}>
       <div className="sticky" style={{ top: `max(80px, calc(50vh - ${Math.round((943 * scale) / 2 + 20)}px))` }}>
-        <div ref={box} className="relative w-full bg-white overflow-hidden" style={{ height: Math.round(frameH * scale) }}>
+        <div ref={box} className="relative w-full bg-white overflow-hidden rounded-[20px]" style={{ height: Math.round(frameH * scale) }}>
           <div
             className="absolute top-0 left-1/2"
             style={{ width: FRAME_W, height: frameH, marginLeft: -FRAME_W / 2, transform: `scale(${scale})`, transformOrigin: 'top center' }}

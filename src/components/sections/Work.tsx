@@ -194,7 +194,7 @@ export function Work() {
 
           {/* right column - companies */}
           <motion.div
-            className="flex flex-col items-center md:items-start gap-2 md:pl-6 order-1 md:order-3"
+            className="flex flex-col items-center md:items-start gap-[20px] md:pl-6 order-1 md:order-3"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
@@ -214,6 +214,12 @@ export function Work() {
                   color: target === i ? HOVER : INK,
                 }}
               >
+                <span
+                  className="block normal-case text-[16px] leading-[20px] mb-[6px] text-[#8e8e95]"
+                  style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', letterSpacing: 0 }}
+                >
+                  {c.years}
+                </span>
                 {c.name}
               </motion.button>
             ))}

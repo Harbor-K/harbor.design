@@ -41,10 +41,10 @@ const IMG = {
   sketchPhoto: A + 'sketch-photo.png',
   sketch1a: A + 'sketch-1a.jpg',
   sketch1b: A + 'sketch-1b.jpg',
-  sketch2a: A + 'sketch-2a.png',
-  sketch2b: A + 'sketch-2b.png',
-  sketch3a: A + 'sketch-3a.png',
-  sketch3b: A + 'sketch-3b.png',
+  sketch2a: A + 'sketch-2a.png?v=2',
+  sketch2b: A + 'sketch-2b.png?v=2',
+  sketch3a: A + 'sketch-3a.png?v=2',
+  sketch3b: A + 'sketch-3b.png?v=2',
   workshop1: A + 'workshop-1.jpg',
   workshop2: A + 'workshop-2.jpg?v=2',
   ideas: A + 'ideas.png',
@@ -319,7 +319,7 @@ function HeroSection() {
           poster={IMG.heroPoster}
           ratio="2 / 1"
           bg="#049ddc"
-          className="mt-10 md:mt-[30px] rounded-[24px]"
+          className="mt-10 md:mt-[30px] rounded-[20px]"
           label="Trust Bank rewards: linking FairPrice in one tap and watching every payment fill the Linkpoints bar"
         />
 
@@ -450,7 +450,7 @@ function DiscoverSection() {
           }
           right={
             <div className="md:pt-[40px]">
-              <Img src={IMG.article} alt="News article: only 17% of Trust Bank users use it as their main bank" className="rounded-[12px]" />
+              <Img src={IMG.article} alt="News article: only 17% of Trust Bank users use it as their main bank" className="rounded-[20px]" />
               <p className="mt-[10px] text-center text-[16px] text-[#8e8e95]" style={{ fontFamily: HELV }}>
                 Source: The Asian Banker (May 2026)
               </p>
@@ -476,7 +476,7 @@ function DiscoverSection() {
           }
           right={
             <div className="md:pt-[240px] md:pl-[10px]">
-              <Img src={IMG.interview} alt="Interview session recording, 1 of 3" className="rounded-[12px]" />
+              <Img src={IMG.interview} alt="Interview session recording, 1 of 3" className="rounded-[20px]" />
             </div>
           }
         />
@@ -598,7 +598,7 @@ function DefineSection() {
             src={IMG.definePhoto}
             alt="Harbor and her teammate grouping interview notes on a glass board"
             loading="lazy"
-            className="block w-full max-w-[613px] md:ml-auto rounded-[10px] aspect-[613/358] object-cover"
+            className="block w-full max-w-[613px] md:ml-auto rounded-[20px] aspect-[613/358] object-cover"
           />
         </div>
 
@@ -633,7 +633,7 @@ function DefineSection() {
         </Body>
         <div className="mt-[70px]">
           {/* journey motion: Harbor's GIF as a silent loop with its white card, 1504 wide like the Figma card (32px past the column each side) */}
-          <div className="min-[1488px]:mx-[-2.22%]">
+          <div className="min-[1488px]:mx-[-2.22%] rounded-[20px] overflow-hidden">
             <Motion
               src={IMG.journeyVideo}
               poster={IMG.journeyPoster}
@@ -710,7 +710,7 @@ function IdeaCards() {
       {IDEAS.map((c, i) => (
         <article
           key={c.t}
-          className="flex flex-col rounded-[24px] border border-[#d6ebf5] bg-white overflow-hidden"
+          className="flex flex-col rounded-[20px] border border-[#d6ebf5] bg-white overflow-hidden"
           style={{
             opacity: shown ? 1 : 0,
             transform: shown ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.94)',
@@ -733,14 +733,14 @@ function IdeaCards() {
           </header>
 
           {/* 2 · the sketches */}
-          <div className="mx-[30px] mt-[20px] flex justify-center gap-[20px] rounded-[16px] px-[20px] py-[20px]" style={{ background: SKY }}>
+          <div className="mx-[30px] mt-[20px] flex justify-center gap-[20px] rounded-[20px] px-[20px] py-[20px]" style={{ background: SKY }}>
             {c.sk.map((src, k) => (
               <img
                 key={src}
                 src={src}
                 alt={`Hand sketch ${k + 1} for idea ${i + 1}`}
                 loading="lazy"
-                className="block w-[calc(50%-10px)] max-w-[178px] aspect-[178/304] object-contain bg-white rounded-[11px]"
+                className="block h-[300px] w-auto max-w-[calc(50%-10px)] object-contain rounded-[20px]"
               />
             ))}
           </div>
@@ -931,7 +931,7 @@ function TestSection() {
         </div>
 
         {/* masked usability-test session */}
-        <div className="relative mt-[40px] rounded-[12px] overflow-hidden">
+        <div className="relative mt-[40px] rounded-[20px] overflow-hidden">
           <Img src={IMG.ut} alt="Remote usability test session on the prototype (participant masked)" />
           <div
             className="absolute backdrop-blur-xl bg-white/10 rounded-[6px]"
@@ -1006,7 +1006,7 @@ function ReflectionSection() {
             </div>
           </div>
           <div className="w-full md:w-[460px] shrink-0">
-            <Img src={IMG.reflection} alt="Harbor presenting the Trust Bank design to her team" className="rounded-[16px]" />
+            <Img src={IMG.reflection} alt="Harbor presenting the Trust Bank design to her team" className="rounded-[20px]" />
           </div>
         </div>
 
