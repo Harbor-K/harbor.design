@@ -39,6 +39,14 @@ const IMG = {
   hmw: A + 'hmw.png',
   dvf: A + 'dvf.png',
   sketchPhoto: A + 'sketch-photo.png',
+  sketch1a: A + 'sketch-1a.jpg',
+  sketch1b: A + 'sketch-1b.jpg',
+  sketch2a: A + 'sketch-2a.jpg',
+  sketch2b: A + 'sketch-2b.jpg',
+  sketch3a: A + 'sketch-3a.jpg',
+  sketch3b: A + 'sketch-3b.jpg',
+  workshop1: A + 'workshop-1.jpg',
+  workshop2: A + 'workshop-2.jpg',
   ideas: A + 'ideas.png',
   deliver: A + 'deliver.png',
   ut: A + 'ut-session.png',
@@ -619,6 +627,79 @@ function DefineSection() {
   );
 }
 
+const IDEAS = [
+  {
+    t: '1  Coupons that find you',
+    pain: 'Benefits don’t fit daily spending',
+    d: 'An alert near the store. Tapping the card applies the coupon.',
+    sk: [IMG.sketch1a, IMG.sketch1b],
+  },
+  { t: '2  One rewards hub', pain: 'Rewards are scattered and unclear', d: 'Every reward on one page, in clear sections.', sk: [IMG.sketch2a, IMG.sketch2b] },
+  {
+    t: '3  Points you can see grow',
+    pain: 'Linkpoints don’t feel worth collecting',
+    d: 'A bar to the next reward, a one-tap FairPrice link, and a widget.',
+    sk: [IMG.sketch3a, IMG.sketch3b],
+  },
+];
+
+/** 3 idea cards (Figma "Visual · idea card"): they pop in one after another when scrolled into view */
+function IdeaCards() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="mt-[100px] grid grid-cols-1 md:grid-cols-3 gap-[30px]" style={{ fontFamily: HELV, color: INK }}>
+      {IDEAS.map((c, i) => (
+        <div
+          key={c.t}
+          className="rounded-[24px] border border-[#e2e8ea] p-[20px] md:p-[24px]"
+          style={{
+            background: SKY,
+            opacity: shown ? 1 : 0,
+            transform: shown ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.94)',
+            transition: `opacity 0.5s ease ${i * 0.22}s, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.22}s`,
+          }}
+        >
+          <p className="text-[20px] leading-[28px] font-bold whitespace-pre">{c.t}</p>
+          <div className="mt-[20px] flex justify-center gap-[20px]">
+            {c.sk.map((src, k) => (
+              <img
+                key={src}
+                src={src}
+                alt={`Hand sketch ${k + 1} for idea ${i + 1}`}
+                loading="lazy"
+                className="block w-[calc(50%-10px)] max-w-[178px] aspect-[178/304] object-cover rounded-[11px]"
+              />
+            ))}
+          </div>
+          <p className="mt-[30px] text-[18px] leading-[26px] font-bold">{c.pain}</p>
+          <p className="mt-[10px] text-[18px] leading-[26px]">{c.d}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function DevelopSection() {
   return (
     <section className="bg-white pt-[120px] pb-[120px]">
@@ -640,16 +721,20 @@ function DevelopSection() {
           </p>
         </div>
 
-        <div className="mt-[110px] grid grid-cols-1 md:grid-cols-[1fr_460px] gap-10 items-start">
-          <Body className="max-w-[950px]">
-            Then we sketched 1 idea for each pain point. 2 came from the 6 passed ideas. We added a third for question 3, about points. Finding 3 had already
-            shown users needed it.
-          </Body>
-          <Img src={IMG.sketchPhoto} alt="Sketching session photo" className="rounded-[16px]" />
-        </div>
+        {/* Figma Develop (v.12-9): bridge text, 3 idea cards (pop in one by one on scroll), caption, 2 workshop photos */}
+        <Body className="mt-[100px] max-w-[760px]">
+          Then we sketched 1 idea for each pain point. 2 came from the 6 passed ideas. We added a third for question 3, about points. Finding 3 had already
+          shown users needed{'\u00a0'}it.
+        </Body>
 
-        <div className="mt-[30px]">
-          <Img src={IMG.ideas} alt="Idea sketches: 1 Coupons that find you, 2 One rewards hub, 3 Points you can see grow" />
+        <IdeaCards />
+        <p className="mt-[20px] text-center text-[16px] leading-[1.4] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+          Our hand sketches. Ideas 1–3 answer questions 1–3 above.
+        </p>
+
+        <div className="mt-[40px] grid grid-cols-1 md:grid-cols-2 gap-[40px]">
+          <img src={IMG.workshop1} alt="Harbor sketching idea screens with her teammate" loading="lazy" className="block w-full aspect-[700/472] object-cover rounded-[20px]" />
+          <img src={IMG.workshop2} alt="The team reviewing paper sketches together" loading="lazy" className="block w-full aspect-[700/472] object-cover rounded-[20px]" />
         </div>
       </Container>
     </section>
