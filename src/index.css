@@ -163,3 +163,11 @@ body {
 .kim-llm-spin {
   animation: kim-llm-spin 1.4s linear infinite;
 }
+
+
+/* Trust Bank hero video controls: thin white sliders */
+.tb-range { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 9999px; cursor: pointer;
+  background: linear-gradient(90deg, #ffffff var(--fill, 0%), rgba(255,255,255,0.35) var(--fill, 0%)); }
+.tb-range::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 9999px; background: #ffffff; border: 0; }
+.tb-range::-moz-range-thumb { width: 12px; height: 12px; border-radius: 9999px; background: #ffffff; border: 0; }
+.tb-range::-moz-range-track { background: transparent; }

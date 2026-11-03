@@ -9,9 +9,9 @@ import { AffinityScroll } from './AffinityScroll';
  * Text is real text; dense visuals (boards, diagrams, phone screens, photos) are Figma exports
  * hosted in Harbor-K/harbor-pf/assets/trust-bank.
  * Top bar: CaseNav — the home page's boxed tray style with Back / next project.
- * Hero: Harbor's motion piece with sound (SoundMotion, speaker toggle). Process + journey map: her motion pieces (her GIFs, converted to silent looping MP4s for size).
+ * Hero: Harbor's motion piece with sound (SoundMotion: play/pause, progress, volume at 50%; controls hide after 3s, show on hover). Process + journey map: her motion pieces (her GIFs, converted to silent looping MP4s for size).
  * Overview follows Figma "Section / Overview" (node 1026:2000): Problem, Solution, Impact (23/30 · 85 · 6/6).
- * Magnifier (hover zoom) only on the thematic-analysis board (data-zoom).
+ * Magnifier (hover zoom) only on the thematic-analysis board and the DVF assumption map (data-zoom).
  * Define: affinity board is live elements; on scroll the notes regroup into the 3 patterns (AffinityScroll).
  * Spacing on a 10px grid; text stacks (eyebrow → title → body) 16 apart.
  */
@@ -100,70 +100,175 @@ function Motion({ src, poster, ratio, label, className = '', bg }: { src: string
   );
 }
 
+const fmt = (t: number) => {
+  if (!isFinite(t)) return '0:00';
+  const m = Math.floor(t / 60);
+  const sec = Math.floor(t % 60);
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+};
+
 /**
- * Hero motion with its sound effects. Browsers only allow sound after the visitor has interacted with the site,
- * so it tries to play with sound first (works when they came from the home page via "View case"),
- * otherwise it plays muted and the speaker button turns the sound on.
+ * Hero motion with its sound effects, volume fixed to start at 50%.
+ * Controls (play/pause, progress bar, volume) show for the first 3 seconds, then hide; hovering the video brings them back.
+ * Browsers only allow sound after the visitor has interacted with the site, so it tries sound first
+ * (works when they came from the home page via "View case"), otherwise it starts muted and the speaker turns sound on.
  */
 function SoundMotion({ src, poster, ratio, label, className = '', bg }: { src: string; poster: string; ratio: string; label: string; className?: string; bg: string }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [time, setTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [intro, setIntro] = useState(true); // first 3 seconds
+  const [hover, setHover] = useState(false);
+  const [focus, setFocus] = useState(false);
+  const show = intro || hover || focus;
 
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    v.volume = 0.5;
     v.muted = false;
     v.play().catch(() => {
       v.muted = true;
       setMuted(true);
       v.play().catch(() => {});
     });
+    const t = window.setTimeout(() => setIntro(false), 3000);
+    return () => window.clearTimeout(t);
   }, []);
 
-  const toggle = () => {
+  const togglePlay = () => {
+    const v = ref.current;
+    if (!v) return;
+    if (v.paused) v.play().catch(() => {});
+    else v.pause();
+  };
+  const toggleMute = () => {
     const v = ref.current;
     if (!v) return;
     v.muted = !v.muted;
+    if (!v.muted && v.volume === 0) v.volume = 0.5;
     setMuted(v.muted);
-    if (v.paused) v.play().catch(() => {});
+    setVolume(v.volume);
+  };
+  const changeVolume = (val: number) => {
+    const v = ref.current;
+    if (!v) return;
+    v.volume = val;
+    v.muted = val === 0;
+    setVolume(val);
+    setMuted(v.muted);
+  };
+  const seek = (val: number) => {
+    const v = ref.current;
+    if (!v || !duration) return;
+    v.currentTime = val;
+    setTime(val);
   };
 
+  const shownVolume = muted ? 0 : volume;
+  const pct = duration ? (time / duration) * 100 : 0;
+
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ aspectRatio: ratio, background: bg }}>
-      <video ref={ref} className="block w-full h-full object-cover" src={src} poster={poster} loop playsInline preload="auto" aria-label={label} />
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
-        className="absolute right-5 bottom-5 flex items-center gap-2 rounded-lg bg-black/60 hover:bg-black/75 px-4 py-2 text-[16px] font-medium text-white backdrop-blur transition-colors"
-        style={{ fontFamily: HELV }}
+    <div
+      className={`relative overflow-hidden ${className}`}
+      style={{ aspectRatio: ratio, background: bg }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocusCapture={() => setFocus(true)}
+      onBlurCapture={() => setFocus(false)}
+    >
+      <video
+        ref={ref}
+        className="block w-full h-full object-cover cursor-pointer"
+        src={src}
+        poster={poster}
+        loop
+        playsInline
+        preload="auto"
+        aria-label={label}
+        onClick={togglePlay}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+      />
+
+      {/* controls */}
+      <div
+        className={`absolute inset-x-0 bottom-0 px-5 pb-4 pt-12 transition-opacity duration-300 ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 100%)', fontFamily: HELV }}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M11 5 6 9H2v6h4l5 4V5z" />
-          {muted ? (
-            <>
-              <line x1="22" y1="9" x2="16" y2="15" />
-              <line x1="16" y1="9" x2="22" y2="15" />
-            </>
-          ) : (
-            <>
-              <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-              <path d="M19 5a10 10 0 0 1 0 14" />
-            </>
-          )}
-        </svg>
-        {muted ? 'Sound on' : 'Sound off'}
-      </button>
+        <input
+          type="range"
+          min={0}
+          max={duration || 0}
+          step={0.01}
+          value={time}
+          onChange={(e) => seek(Number(e.target.value))}
+          aria-label="Video progress"
+          className="tb-range block w-full"
+          style={{ ['--fill' as string]: `${pct}%` } as React.CSSProperties}
+        />
+        <div className="mt-3 flex items-center gap-4 text-white">
+          <button type="button" onClick={togglePlay} aria-label={playing ? 'Pause' : 'Play'} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/15">
+            {playing ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <rect x="6" y="5" width="4" height="14" rx="1" />
+                <rect x="14" y="5" width="4" height="14" rx="1" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z" />
+              </svg>
+            )}
+          </button>
+          <span className="text-[16px] tabular-nums">
+            {fmt(time)} / {fmt(duration)}
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <button type="button" onClick={toggleMute} aria-label={muted ? 'Turn sound on' : 'Mute'} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/15">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" />
+                {shownVolume === 0 ? (
+                  <>
+                    <line x1="22" y1="9" x2="16" y2="15" />
+                    <line x1="16" y1="9" x2="22" y2="15" />
+                  </>
+                ) : (
+                  <>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                    {shownVolume > 0.5 && <path d="M19 5a10 10 0 0 1 0 14" />}
+                  </>
+                )}
+              </svg>
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={shownVolume}
+              onChange={(e) => changeVolume(Number(e.target.value))}
+              aria-label="Volume"
+              className="tb-range w-[100px]"
+              style={{ ['--fill' as string]: `${shownVolume * 100}%` } as React.CSSProperties}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 /** Board exports carry their drop shadow, so they are a little wider than the 1440 column. */
-function ShadowedImg({ src, alt, natural, column = 1440 }: { src: string; alt: string; natural: number; column?: number }) {
+function ShadowedImg({ src, alt, natural, column = 1440, zoom = false }: { src: string; alt: string; natural: number; column?: number; zoom?: boolean }) {
   const over = (natural - column) / column; // extra width ratio
   return (
     <div style={{ marginLeft: `${(-over / 2) * 100}%`, marginRight: `${(-over / 2) * 100}%` }}>
-      <Img src={src} alt={alt} />
+      <Img src={src} alt={alt} zoom={zoom} />
     </div>
   );
 }
@@ -459,7 +564,7 @@ function DefineSection() {
       {/* problem statement band */}
       <div className="bg-[#cdeefc] py-[20px]">
         <Container>
-          <div className="rounded-[20px] bg-white px-6 py-12 md:py-[50px] text-center" style={{ fontFamily: HELV, color: INK }}>
+          <div className="px-6 py-12 md:py-[50px] text-center" style={{ fontFamily: HELV, color: INK }}>
             <p className="text-[16px] md:text-[17px] leading-[1.4]">PROBLEM STATEMENT</p>
             <p className="mt-[20px] text-[28px] md:text-[50px] leading-[1.25] font-bold tracking-[-0.01em]">
               Users are not aware of the rewards system.
@@ -529,7 +634,10 @@ function DevelopSection() {
           against DVF: Do users want it? Does it help the bank? Can we build it?
         </Body>
         <div className="mt-[30px]">
-          <ShadowedImg src={IMG.dvf} natural={1504} alt="DVF assumption map: 25 ideas sorted by importance and evidence, 6 passed" />
+          <ShadowedImg src={IMG.dvf} natural={1504} alt="DVF assumption map: 25 ideas sorted by importance and evidence, 6 passed" zoom />
+          <p className="mt-5 text-center text-[16px] leading-[1.4] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+            DVF assumption map · 26 ideas, 6 passed
+          </p>
         </div>
 
         <div className="mt-[110px] grid grid-cols-1 md:grid-cols-[1fr_460px] gap-10 items-start">
