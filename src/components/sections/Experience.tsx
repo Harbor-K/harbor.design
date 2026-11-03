@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DotWord } from '../DotWord';
 import { useScrollProgress } from '../../hooks/useScrollProgress';
 import { useViewportSize } from '../../hooks/useViewportSize';
@@ -98,6 +98,16 @@ export function Experience() {
     return Math.round(p < OPEN_END ? lerp(i * strip, open, opening) : open);
   };
 
+  const [hover, setHover] = useState(false);
+  const [dark, setDark] = useState(false); // dark project page → white label
+  const [pos, setPos] = useState({ x: -200, y: -200 });
+  // scrolling the section away (without moving the mouse) hides the label
+  useEffect(() => {
+    const off = () => setHover(false);
+    window.addEventListener('scroll', off, { passive: true });
+    return () => window.removeEventListener('scroll', off);
+  }, []);
+
   return (
     <section id="work" ref={outerRef} className="relative" style={{ height: `${(N + 1.6) * 100}vh`, background: SOFT_GREY }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ background: SOFT_GREY }}>
@@ -105,10 +115,20 @@ export function Experience() {
           // a page the next one has fully covered is hidden (no stacked edges)
           const fullyCovered = i < N - 1 && q - i >= 0.999;
           return (
-            <div
+            <a
               key={pg.name}
-              className="absolute inset-x-0 top-0 h-screen will-change-transform"
+              href={pg.href}
+              aria-label={pg.href ? `View case study: ${pg.name.replace('\n', ' ')}` : undefined}
+              onMouseEnter={() => pg.href && setHover(true)}
+              onMouseLeave={() => setHover(false)}
+              onMouseMove={(e) => {
+                setPos({ x: e.clientX, y: e.clientY });
+                if (pg.href) setHover(true);
+                setDark(pg.ink === '#FFFFFF');
+              }}
+              className="absolute inset-x-0 top-0 h-screen will-change-transform block"
               style={{
+                cursor: pg.href ? 'none' : 'default',
                 transform: `translate3d(0, ${pageY(i)}px, 0)`,
                 background: pg.bg,
                 color: pg.ink,
@@ -138,30 +158,27 @@ export function Experience() {
                     <p className="text-[18px] md:text-[20px] leading-snug mt-2 opacity-90 max-w-[520px]" style={{ textWrap: 'balance' } as React.CSSProperties}>
                       {pg.sub}
                     </p>
-                    <div className="mt-7">
-                      {pg.href ? (
-                        <a
-                          href={pg.href}
-                          className="inline-flex items-center rounded-lg px-5 py-3 text-[17px] font-medium tracking-tight transition-opacity duration-150 hover:opacity-85"
-                          style={{ background: pg.ink, color: pg.ink === '#FFFFFF' ? '#0A0A0A' : '#FFFFFF' }}
-                        >
-                          View case
-                        </a>
-                      ) : (
-                        <span
-                          className="inline-flex items-center rounded-lg px-5 py-3 text-[17px] font-medium tracking-tight opacity-80"
-                          style={{ border: `2px solid ${pg.ink}` }}
-                        >
-                          Coming soon
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </a>
           );
         })}
+      </div>
+
+      {/* "View case study" button that follows the cursor over a project */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed left-0 top-0 z-[60] rounded-lg px-5 py-3 text-[17px] font-medium tracking-tight whitespace-nowrap shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+        style={{
+          background: dark ? '#FFFFFF' : '#0A0A0A',
+          color: dark ? '#0A0A0A' : '#FFFFFF',
+          transform: `translate3d(${pos.x}px, ${pos.y}px, 0) translate(-50%, -50%) scale(${hover ? 1 : 0.6})`,
+          opacity: hover ? 1 : 0,
+          transition: 'opacity 0.2s ease, transform 0.2s ease-out',
+        }}
+      >
+        View case study
       </div>
     </section>
   );
