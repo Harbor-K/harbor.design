@@ -13,8 +13,8 @@ import { useViewportSize } from '../../hooks/useViewportSize';
  * The page after the current one peeks in at the bottom, like the next page of a book.
  *
  * Each page: project name in mixed dots on the left; on the right, the project title in big bold type
- * with the year, one line of detail and a "View case" button right under it (all right-aligned).
- * The button matches the header nav buttons: 8px corners, 20 x 12 padding, 17px medium text.
+ * with the year and one line of detail (all right-aligned). The whole page links to its case study;
+ * hovering shows a round "View case study" button that follows the cursor.
  * Colours from each project's brand: Trust Bank blue -> GameCove navy -> UTrada purple. The UTrada page
  * fades into the site's soft grey (SOFT_GREY), and About me keeps that same grey, so they read as one.
  *
@@ -146,7 +146,7 @@ export function Experience() {
                   {/* left: project name in dots */}
                   <DotWord text={pg.name} color={pg.ink} maxHeight={118} align="left" />
 
-                  {/* right: title, then year / detail / button right under it */}
+                  {/* right: title, then year / detail */}
                   <div className="flex flex-col md:items-end md:text-right">
                     <h3
                       className="font-inter-tight font-bold tracking-[-0.04em] leading-[0.95] whitespace-pre-line"
@@ -166,7 +166,7 @@ export function Experience() {
         })}
       </div>
 
-      {/* "View case study" button that follows the cursor over a project */}
+      {/* round "View case study" button that follows the cursor over a project */}
       <div
         aria-hidden
         className="pointer-events-none fixed left-0 top-0 z-[60] flex h-[120px] w-[120px] items-center justify-center rounded-full text-center text-[16px] leading-[20px] font-medium tracking-tight shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
