@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FixedNav } from './components/FixedNav';
-import { Hero } from './components/sections/Hero';
+import { RolesHero } from './components/sections/RolesHero';
 import { Work } from './components/sections/Work';
 import { Experience } from './components/sections/Experience';
 import { WhatIDo } from './components/sections/WhatIDo';
@@ -60,7 +60,7 @@ export function App() {
           <FixedNav />
 
           <main className="relative z-10">
-            <Hero />
+            <RolesHero />
             <Work />
             <Experience />
             <WhatIDo />
