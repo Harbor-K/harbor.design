@@ -732,7 +732,7 @@ function DevelopSection() {
           Our hand sketches. Ideas 1–3 answer questions 1–3 above.
         </p>
 
-        <div className="mt-[40px] grid grid-cols-1 md:grid-cols-2 gap-[40px]">
+        <div className="mt-[60px] grid grid-cols-1 md:grid-cols-2 gap-[40px]">
           <img src={IMG.workshop1} alt="Harbor sketching idea screens with her teammate" loading="lazy" className="block w-full aspect-[700/472] object-cover rounded-[20px]" />
           <img src={IMG.workshop2} alt="The team reviewing paper sketches together" loading="lazy" className="block w-full aspect-[700/472] object-cover rounded-[20px]" />
         </div>
