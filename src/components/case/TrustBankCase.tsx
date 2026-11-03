@@ -19,8 +19,8 @@ import { AffinityScroll } from './AffinityScroll';
 const A = '/assets/trust-bank/';
 const IMG = {
   logo: A + 'logo.svg',
-  heroVideo: A + 'hero-sfx.mp4',
-  heroPoster: A + 'hero-sfx-poster.jpg',
+  heroVideo: A + 'hero-sfx-v2.mp4',
+  heroPoster: A + 'hero-sfx-v2-poster.jpg',
   journeyVideo: A + 'journey-motion.mp4',
   journeyPoster: A + 'journey-motion-poster.jpg',
   processVideo: A + 'process-motion.mp4',

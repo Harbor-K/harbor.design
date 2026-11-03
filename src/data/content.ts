@@ -4,8 +4,8 @@ export const ASSETS = {
   portraitBw: '/assets/portrait/harbor-portrait-bw.webp',
   trustBank: '/assets/main-v2/trust-bank.webp',
   gamecove: '/assets/main-v2/gamecove.webp',
-  utrada: '/assets/main-v2/utrada-v2.jpg',
-  etoMarkets: '/assets/main-v2/eto-markets-v2.jpg',
+  utrada: '/assets/main-v2/utrada-logo.jpg',
+  etoMarkets: '/assets/main-v2/eto-markets-logo.jpg',
   pinetree: '/assets/main-v2/pinetree.webp',
   // Smiling booth photo (Harbor at the laptop) with the animated glass UI cards behind her (8s silent loop).
   // 2:1 canvas: the photo's full height (room above her head for the nav, laptop on the bottom edge)
