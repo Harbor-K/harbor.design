@@ -38,7 +38,7 @@ const PAGES: Page[] = [
   {
     name: 'TRUST BANK',
     year: '2026',
-    title: 'Rewards UX revamp',
+    title: 'Rewards\nUX revamp', // two lines on purpose
     sub: '2-person project: research, revamp and usability testing',
     href: '#/trust-bank',
     // Trust Bank blue (#2E9ADA), lighter at the top
@@ -129,7 +129,7 @@ export function Experience() {
                   {/* right: title, then year / detail / button right under it */}
                   <div className="flex flex-col md:items-end md:text-right">
                     <h3
-                      className="font-inter-tight font-bold tracking-[-0.04em] leading-[0.95]"
+                      className="font-inter-tight font-bold tracking-[-0.04em] leading-[0.95] whitespace-pre-line"
                       style={{ fontSize: 'clamp(40px, 5vw, 92px)', textWrap: 'balance' } as React.CSSProperties}
                     >
                       {pg.title}

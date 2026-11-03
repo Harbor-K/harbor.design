@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CaseNav } from './CaseNav';
 import { ASSETS } from '../../data/content';
 import { AffinityScroll } from './AffinityScroll';
@@ -9,7 +9,7 @@ import { AffinityScroll } from './AffinityScroll';
  * Text is real text; dense visuals (boards, diagrams, phone screens, photos) are Figma exports
  * hosted in Harbor-K/harbor-pf/assets/trust-bank.
  * Top bar: CaseNav — the home page's boxed tray style with Back / next project.
- * Hero + Process visuals: Harbor's motion pieces (her GIFs, converted to silent looping MP4s for size).
+ * Hero: Harbor's motion piece with sound (SoundMotion, speaker toggle). Process + journey map: her motion pieces (her GIFs, converted to silent looping MP4s for size).
  * Overview follows Figma "Section / Overview" (node 1026:2000): Problem, Solution, Impact (23/30 · 85 · 6/6).
  * Magnifier (hover zoom) only on the thematic-analysis board (data-zoom).
  * Define: affinity board is live elements; on scroll the notes regroup into the 3 patterns (AffinityScroll).
@@ -19,8 +19,10 @@ import { AffinityScroll } from './AffinityScroll';
 const A = '/assets/trust-bank/';
 const IMG = {
   logo: A + 'logo.svg',
-  heroVideo: A + 'hero-motion.mp4',
-  heroPoster: A + 'hero-motion-poster.jpg',
+  heroVideo: A + 'hero-sfx.mp4',
+  heroPoster: A + 'hero-sfx-poster.jpg',
+  journeyVideo: A + 'journey-motion.mp4',
+  journeyPoster: A + 'journey-motion-poster.jpg',
   processVideo: A + 'process-motion.mp4',
   processPoster: A + 'process-motion-poster.jpg',
   article: A + 'article.png',
@@ -98,6 +100,64 @@ function Motion({ src, poster, ratio, label, className = '', bg }: { src: string
   );
 }
 
+/**
+ * Hero motion with its sound effects. Browsers only allow sound after the visitor has interacted with the site,
+ * so it tries to play with sound first (works when they came from the home page via "View case"),
+ * otherwise it plays muted and the speaker button turns the sound on.
+ */
+function SoundMotion({ src, poster, ratio, label, className = '', bg }: { src: string; poster: string; ratio: string; label: string; className?: string; bg: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = false;
+    v.play().catch(() => {
+      v.muted = true;
+      setMuted(true);
+      v.play().catch(() => {});
+    });
+  }, []);
+
+  const toggle = () => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+    if (v.paused) v.play().catch(() => {});
+  };
+
+  return (
+    <div className={`relative overflow-hidden ${className}`} style={{ aspectRatio: ratio, background: bg }}>
+      <video ref={ref} className="block w-full h-full object-cover" src={src} poster={poster} loop playsInline preload="auto" aria-label={label} />
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+        className="absolute right-5 bottom-5 flex items-center gap-2 rounded-lg bg-black/60 hover:bg-black/75 px-4 py-2 text-[16px] font-medium text-white backdrop-blur transition-colors"
+        style={{ fontFamily: HELV }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M11 5 6 9H2v6h4l5 4V5z" />
+          {muted ? (
+            <>
+              <line x1="22" y1="9" x2="16" y2="15" />
+              <line x1="16" y1="9" x2="22" y2="15" />
+            </>
+          ) : (
+            <>
+              <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+              <path d="M19 5a10 10 0 0 1 0 14" />
+            </>
+          )}
+        </svg>
+        {muted ? 'Sound on' : 'Sound off'}
+      </button>
+    </div>
+  );
+}
+
 /** Board exports carry their drop shadow, so they are a little wider than the 1440 column. */
 function ShadowedImg({ src, alt, natural, column = 1440 }: { src: string; alt: string; natural: number; column?: number }) {
   const over = (natural - column) / column; // extra width ratio
@@ -141,7 +201,7 @@ function HeroSection() {
         </Body>
 
         {/* hero motion: 1440x720, silent loop */}
-        <Motion
+        <SoundMotion
           src={IMG.heroVideo}
           poster={IMG.heroPoster}
           ratio="2 / 1"
@@ -421,7 +481,16 @@ function DefineSection() {
           answers. Mei is a student. Daniel is an engineer.
         </Body>
         <div className="mt-[70px]">
-          <ShadowedImg src={IMG.journey} natural={1552} alt="Journey map for Mei and Daniel: both drop at first use, the breaking point" />
+          {/* journey motion: Harbor's GIF as a silent loop, 1504 wide like the Figma card (18px past the column each side) */}
+          <div className="min-[1488px]:mx-[-2.22%]">
+            <Motion
+              src={IMG.journeyVideo}
+              poster={IMG.journeyPoster}
+              ratio="1504 / 634"
+              bg={SKY}
+              label="Journey map for Mei and Daniel across 5 stages: both drop at first use, the breaking point"
+            />
+          </div>
         </div>
         <p className="mt-[20px] text-[16px] md:text-[17px] leading-[1.4] text-center text-[#8e8e95]" style={{ fontFamily: HELV }}>
           Quotes are paraphrased from our interviews, not word for word.
