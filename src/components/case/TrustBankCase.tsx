@@ -629,14 +629,14 @@ function DefineSection() {
 
 const IDEAS = [
   {
-    t: '1  Coupons that find you',
+    t: 'Coupons that find you',
     pain: 'Benefits don’t fit daily spending',
     d: 'An alert near the store. Tapping the card applies the coupon.',
     sk: [IMG.sketch1a, IMG.sketch1b],
   },
-  { t: '2  One rewards hub', pain: 'Rewards are scattered and unclear', d: 'Every reward on one page, in clear sections.', sk: [IMG.sketch2a, IMG.sketch2b] },
+  { t: 'One rewards hub', pain: 'Rewards are scattered and unclear', d: 'Every reward on one page, in clear sections.', sk: [IMG.sketch2a, IMG.sketch2b] },
   {
-    t: '3  Points you can see grow',
+    t: 'Points you can see grow',
     pain: 'Linkpoints don’t feel worth collecting',
     d: 'A bar to the next reward, a one-tap FairPrice link, and a widget.',
     sk: [IMG.sketch3a, IMG.sketch3b],
@@ -670,18 +670,32 @@ function IdeaCards() {
   return (
     <div ref={ref} className="mt-[100px] grid grid-cols-1 md:grid-cols-3 gap-[30px]" style={{ fontFamily: HELV, color: INK }}>
       {IDEAS.map((c, i) => (
-        <div
+        <article
           key={c.t}
-          className="rounded-[24px] border border-[#e2e8ea] p-[20px] md:p-[24px]"
+          className="flex flex-col rounded-[24px] border border-[#d6ebf5] bg-white overflow-hidden"
           style={{
-            background: SKY,
             opacity: shown ? 1 : 0,
             transform: shown ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.94)',
             transition: `opacity 0.5s ease ${i * 0.22}s, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.22}s`,
           }}
         >
-          <p className="text-[20px] leading-[28px] font-bold whitespace-pre">{c.t}</p>
-          <div className="mt-[20px] flex justify-center gap-[20px]">
+          {/* 1 · number + idea name */}
+          <header className="flex items-center gap-[16px] px-[30px] pt-[30px]">
+            <span
+              className="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full text-[20px] font-bold text-white"
+              style={{ background: BLUE }}
+              aria-hidden
+            >
+              {i + 1}
+            </span>
+            <h3 className="text-[24px] leading-[30px] font-bold tracking-[-0.01em]">
+              <span className="sr-only">Idea {i + 1}: </span>
+              {c.t}
+            </h3>
+          </header>
+
+          {/* 2 · the sketches */}
+          <div className="mx-[30px] mt-[20px] flex justify-center gap-[20px] rounded-[16px] px-[20px] py-[20px]" style={{ background: SKY }}>
             {c.sk.map((src, k) => (
               <img
                 key={src}
@@ -692,9 +706,18 @@ function IdeaCards() {
               />
             ))}
           </div>
-          <p className="mt-[30px] text-[18px] leading-[26px] font-bold">{c.pain}</p>
-          <p className="mt-[10px] text-[18px] leading-[26px]">{c.d}</p>
-        </div>
+
+          {/* 3 · problem → idea */}
+          <dl className="flex flex-1 flex-col px-[30px] pt-[30px] pb-[30px]">
+            <dt className="text-[16px] leading-[20px] font-medium uppercase tracking-[0.06em] text-[#8e8e95]">Pain point</dt>
+            <dd className="mt-[10px] text-[20px] leading-[28px] font-bold">{c.pain}</dd>
+            <div className="my-[20px] h-px w-full bg-[rgba(0,13,16,0.1)]" />
+            <dt className="text-[16px] leading-[20px] font-medium uppercase tracking-[0.06em]" style={{ color: BLUE }}>
+              Our idea
+            </dt>
+            <dd className="mt-[10px] text-[18px] leading-[28px] text-[#333]">{c.d}</dd>
+          </dl>
+        </article>
       ))}
     </div>
   );
