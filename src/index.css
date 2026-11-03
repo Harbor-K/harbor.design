@@ -1,5 +1,6 @@
 /* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
-/* No web fonts: the whole site uses Helvetica Neue (system font) — never Inter. The dot font is drawn in SVG. */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Kalam:wght@400&display=swap'); /* handwriting on the Define whiteboard only */
+/* Site text is Helvetica Neue (system font) — never Inter. The dot font is drawn in SVG. Caveat/Kalam are only the handwriting on the Define whiteboard. */
 
 /* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
 @import 'tailwindcss/base';

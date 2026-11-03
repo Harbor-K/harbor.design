@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { CaseNav } from './CaseNav';
 import { ASSETS } from '../../data/content';
+import { AffinityScroll } from './AffinityScroll';
 
 /**
  * Trust Bank case study — built from Figma "Trust Bank_v.12-10" (file 44기 김지현 4차 랜딩페이지).
@@ -10,7 +11,9 @@ import { ASSETS } from '../../data/content';
  * Top bar: CaseNav — the home page's boxed tray style with Back / next project.
  * Hero + Process visuals: Harbor's motion pieces (her GIFs, converted to silent looping MP4s for size).
  * Overview follows Figma "Section / Overview" (node 1026:2000): Problem, Solution, Impact (23/30 · 85 · 6/6).
- * Magnifier (hover zoom + click to enlarge) only on the thematic-analysis board (data-zoom).
+ * Magnifier (hover zoom) only on the thematic-analysis board (data-zoom).
+ * Define: affinity board is live elements; on scroll the notes regroup into the 3 patterns (AffinityScroll).
+ * Spacing on a 10px grid; text stacks (eyebrow → title → body) 16 apart.
  */
 
 const A = '/assets/trust-bank/';
@@ -26,6 +29,10 @@ const IMG = {
   thematic: A + 'thematic.png',
   heard: A + 'heard.png',
   affinity: A + 'affinity.png',
+  definePhoto: A + 'define-photo.jpg',
+  hmwIcon1: A + 'hmw-icon-1.svg',
+  hmwIcon2: A + 'hmw-icon-2.svg',
+  hmwIcon3: A + 'hmw-icon-3.svg',
   journey: A + 'journey.png',
   hmw: A + 'hmw.png',
   dvf: A + 'dvf.png',
@@ -179,13 +186,13 @@ function OverviewRow({ label, children, className = '' }: { label: string; child
   );
 }
 
-// Figma "Section / Overview": Problem (y 216) → Solution (y 367) → Impact (y 512); 1920 frame, 240 margin
+// Overview: eyebrow → content 16 (same as Process / Discover), rows 60 apart; 10px grid
 function OverviewSection() {
   return (
     <section className="bg-white py-[120px]">
       <Container>
         <Eyebrow label="OVERVIEW" />
-        <OverviewRow label="The problem" className="mt-[72px]">
+        <OverviewRow label="The problem" className="mt-4">
           <Body className="max-w-[944px]">
             Trust Bank works with FairPrice, a supermarket chain. Over 1 million people joined Trust Bank, 70% through a friend’s invite bonus, but only 17%
             made it their main bank. So we interviewed users to find out why. Of the problems we found, we focused on rewards: FairPrice rewards are Trust
@@ -193,14 +200,14 @@ function OverviewSection() {
           </Body>
         </OverviewRow>
 
-        <OverviewRow label="Solution" className="mt-[64px]">
+        <OverviewRow label="Solution" className="mt-[60px]">
           <Body className="max-w-[928px]">
             If users can find their rewards and know how to use them, they have a reason to come back. That builds loyalty. So we set two goals. Easy to find:
             show each user the rewards that fit them. Easy to use: show the rules and the next step.
           </Body>
         </OverviewRow>
 
-        <OverviewRow label="Impact" className="mt-[58px]">
+        <OverviewRow label="Impact" className="mt-[60px]">
           {/* Figma: stats at x 638 / 994 / 1350, dividers at 965 / 1321 → columns 355 / 356 / rest, 28px inset */}
           <div className="grid grid-cols-1 sm:grid-cols-[355px_356px_1fr]">
             <div className="py-2 sm:pl-7">
@@ -269,9 +276,9 @@ function DiscoverSection() {
             </>
           }
           right={
-            <div className="md:pt-[47px]">
+            <div className="md:pt-[40px]">
               <Img src={IMG.article} alt="News article: only 17% of Trust Bank users use it as their main bank" className="rounded-[12px]" />
-              <p className="mt-3 text-center text-[16px] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+              <p className="mt-[10px] text-center text-[16px] text-[#8e8e95]" style={{ fontFamily: HELV }}>
                 Source: The Asian Banker (May 2026)
               </p>
             </div>
@@ -295,13 +302,13 @@ function DiscoverSection() {
             </>
           }
           right={
-            <div className="md:pt-[244px] md:pl-[13px]">
+            <div className="md:pt-[240px] md:pl-[10px]">
               <Img src={IMG.interview} alt="Interview session recording, 1 of 3" className="rounded-[12px]" />
             </div>
           }
         />
 
-        <div className="mt-[123px]">
+        <div className="mt-[120px]">
           {/* the only image with the magnifier (hover zoom + click to enlarge) */}
           <Img src={IMG.thematic} alt="Thematic analysis of 3 interviews: 5 themes, 19 codes and quotes" className="rounded-[20px]" zoom />
           <p className="mt-5 text-center text-[16px] leading-[1.4] text-[#8e8e95]" style={{ fontFamily: HELV }}>
@@ -324,7 +331,7 @@ function DiscoverSection() {
               <Body>
                 Our 3 users barely used Trust Bank’s rewards. So we went back to the data. How many points do Trust Bank users actually earn?
               </Body>
-              <Body className="mt-6">
+              <Body className="mt-[20px]">
                 Trust Bank already gives out over 9 billion points, but the users we spoke to didn’t see them as a reason to come back. Its biggest strength was
                 going to waste. Was our guess right? We went back to our interview notes to check.
               </Body>
@@ -336,27 +343,65 @@ function DiscoverSection() {
   );
 }
 
+const HMW = [
+  { n: 'HMW 1', q: 'Show the right reward just before users buy?', bg: '#ffe07a', icon: IMG.hmwIcon1 },
+  { n: 'HMW 2', q: 'Show the rewards users want at a glance?', bg: '#d4b0f8', icon: IMG.hmwIcon2 },
+  { n: 'HMW 3', q: 'Make collecting points feel worth it?', bg: '#a8e3b4', icon: IMG.hmwIcon3 },
+];
+
+/** Figma "HMW · sticky cluster": 3 stickies 300×300, 40 apart (interaction to come) */
+function HmwStickies() {
+  return (
+    <div className="flex flex-wrap gap-[40px] xl:justify-end" style={{ fontFamily: HELV, color: INK }}>
+      {HMW.map((h) => (
+        <div key={h.n} className="relative w-[300px] h-[300px] shrink-0" style={{ background: h.bg, boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
+          <p className="absolute left-[22px] top-[22px] text-[16px] leading-[20px] font-bold text-[rgba(0,13,16,0.5)]">{h.n}</p>
+          <p className="absolute left-[22px] right-[22px] top-[50px] text-[24px] leading-[31px] font-medium">{h.q}</p>
+          <p className="absolute left-[22px] bottom-[22px] text-[16px] leading-[20px] text-[rgba(0,13,16,0.5)]">Harbor Kim</p>
+          <img src={h.icon} alt="" aria-hidden className="absolute right-[22px] bottom-[20px] w-[110px] h-[110px]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Figma "Section / Define" (Trust Bank_v.12-9): eyebrow → title → body 16 apart, board photo 613×358 on the right
 function DefineSection() {
   return (
     <section style={{ backgroundColor: SKY }}>
-      <Container className="pt-[120px] pb-[120px]">
-        <Eyebrow label="DEFINE" />
-        <H2 className="mt-4">Grouping what we heard: 3 patterns</H2>
-        <Body className="mt-4 max-w-[700px]">
-          To check our assumtion, we went back to our interview notes. We wrote each thing users said on a note. Then we grouped similar notes. 3 patterns came
-          up more than once.
-        </Body>
-        <div className="mt-[30px]">
-          <ShadowedImg src={IMG.affinity} natural={1504} alt="Affinity diagram: 42 notes from 3 interviews, 5 groups, 3 patterns — Unseen, Elsewhere, Not worth it" />
+      <Container className="pt-[120px] pb-[80px]">
+        <div className="grid grid-cols-1 md:grid-cols-[700px_1fr] gap-10 items-start">
+          <div>
+            <Eyebrow label="DEFINE" />
+            <H2 className="mt-4">
+              3 patterns:
+              <br />
+              Unseen, Elsewhere, Not worth it
+            </H2>
+            <Body className="mt-4 max-w-[700px]">
+              To check our guess, we went back to our interview notes. We wrote each thing users said on a note. Then we grouped similar notes. 3 patterns came up
+              more than once.
+            </Body>
+          </div>
+          <img
+            src={IMG.definePhoto}
+            alt="Harbor and her teammate grouping interview notes on a glass board"
+            loading="lazy"
+            className="block w-full max-w-[613px] md:ml-auto rounded-[10px] aspect-[613/358] object-cover"
+          />
+        </div>
+
+        <div className="mt-[100px]">
+          <AffinityScroll />
         </div>
       </Container>
 
       {/* problem statement band */}
-      <div className="bg-[#cdeefc] py-[22px]">
+      <div className="bg-[#cdeefc] py-[20px]">
         <Container>
           <div className="rounded-[20px] bg-white px-6 py-12 md:py-[50px] text-center" style={{ fontFamily: HELV, color: INK }}>
-            <p className="text-[15px] md:text-[17px] leading-[1.4]">PROBLEM STATEMENT</p>
-            <p className="mt-5 text-[28px] md:text-[50px] leading-[1.25] font-bold tracking-[-0.01em]">
+            <p className="text-[16px] md:text-[17px] leading-[1.4]">PROBLEM STATEMENT</p>
+            <p className="mt-[20px] text-[28px] md:text-[50px] leading-[1.25] font-bold tracking-[-0.01em]">
               Users are not aware of the rewards system.
               <br />
               So the business <span style={{ color: BLUE }}>fails to earn loyalty</span>.
@@ -378,14 +423,14 @@ function DefineSection() {
         <div className="mt-[70px]">
           <ShadowedImg src={IMG.journey} natural={1552} alt="Journey map for Mei and Daniel: both drop at first use, the breaking point" />
         </div>
-        <p className="mt-2 text-[15px] md:text-[17px] leading-[1.4] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+        <p className="mt-[20px] text-[16px] md:text-[17px] leading-[1.4] text-center text-[#8e8e95]" style={{ fontFamily: HELV }}>
           Quotes are paraphrased from our interviews, not word for word.
         </p>
 
-        <div className="mt-[80px] grid grid-cols-1 md:grid-cols-[440px_1fr] gap-10 items-center">
+        <div className="mt-[80px] grid grid-cols-1 xl:grid-cols-[440px_1fr] gap-10 xl:gap-0 items-center">
           <div>
             <H2>HOW MIGHT WE</H2>
-            <Body className="mt-8">
+            <Body className="mt-[30px]">
               Both personas get stuck at first use.
               <br />
               That is when rewards feel scattered and unclear.
@@ -393,9 +438,7 @@ function DefineSection() {
               We turned this into 3 questions for our ideas:
             </Body>
           </div>
-          <div className="md:max-w-[1000px] md:ml-auto w-full">
-            <Img src={IMG.hmw} alt="HMW 1: Show the right reward just before users buy? HMW 2: Show the rewards users want at a glance? HMW 3: Make collecting points feel worth it?" />
-          </div>
+          <HmwStickies />
         </div>
       </Container>
     </section>
@@ -482,11 +525,11 @@ function FixBlock({
             {kicker}
           </p>
           <p className="mt-[6px] text-[23px] leading-[1.2] font-bold text-[#333]">{title}</p>
-          <Body className="mt-9">{body}</Body>
+          <Body className="mt-10">{body}</Body>
         </div>
         <div style={{ fontFamily: HELV }} className="md:pt-[30px]">
           <p className="text-[52px] leading-[1.1] font-bold text-[#333]">{stat}</p>
-          <p className="mt-[23px] text-[18px] leading-[29px] text-[#333]">{statLabel}</p>
+          <p className="mt-[20px] text-[18px] leading-[29px] text-[#333]">{statLabel}</p>
         </div>
       </div>
       <div className="mt-10 max-w-[640px]">
@@ -512,7 +555,7 @@ function TestSection() {
         </Body>
 
         {/* assumption → validated */}
-        <div className="mt-[30px] rounded-[20px] border border-[rgba(0,13,16,0.1)] bg-white px-6 md:px-[30px] py-7 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-8 items-center" style={{ fontFamily: HELV }}>
+        <div className="mt-[30px] rounded-[20px] border border-[rgba(0,13,16,0.1)] bg-white px-6 md:px-[30px] py-[30px] grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-8 items-center" style={{ fontFamily: HELV }}>
           <div>
             <p className="text-[13px] tracking-[0.08em] text-[#8e8e95]">OUR ASSUMPTION</p>
             <p className="mt-2 text-[19px] md:text-[22px] leading-[1.4] font-medium text-[#000d10]">If Linkpoints are easier to reach, users will use Trust Bank more often.</p>
