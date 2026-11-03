@@ -11,7 +11,6 @@ const INK = '#000d10';
 const ASH = '#8e8e95';
 const TINT = '#F4F4F2';
 const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-const INTER = 'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 const L1 = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
 const L2 = 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.';
@@ -56,7 +55,7 @@ function ImageBox({ ratio = '16 / 9', className = '', dark = false }: { ratio?: 
       className={`w-full flex items-center justify-center ${className}`}
       style={{ aspectRatio: ratio, background: dark ? 'rgba(255,255,255,0.12)' : '#E2E2E0' }}
     >
-      <span className="text-[18px] font-medium" style={{ fontFamily: INTER, color: dark ? 'rgba(255,255,255,0.6)' : ASH }}>
+      <span className="text-[18px] font-medium" style={{ fontFamily: HELV, color: dark ? 'rgba(255,255,255,0.6)' : ASH }}>
         Image
       </span>
     </div>
@@ -85,7 +84,7 @@ function OverviewRow({ label, children, className = '' }: { label: string; child
 
 function Stat({ accent }: { accent: string }) {
   return (
-    <div style={{ fontFamily: INTER }}>
+    <div style={{ fontFamily: HELV }}>
       <p className="text-[44px] md:text-[52px] leading-[63px]" style={{ color: accent }}>
         00%
       </p>
@@ -289,7 +288,7 @@ export function PlaceholderCase({ name, accent, onClose }: { name: string; accen
         </section>
 
         {/* reflection */}
-        <section className="pt-[120px] pb-[120px]" style={{ background: '#1A1A1A', fontFamily: INTER }}>
+        <section className="pt-[120px] pb-[120px]" style={{ background: '#1A1A1A', fontFamily: HELV }}>
           <Container>
             <Eyebrow label="REFLECTION" light />
             <div className="mt-4 flex flex-col md:flex-row gap-12 md:gap-[120px] items-start">

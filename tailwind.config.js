@@ -15,9 +15,9 @@ export default {
         },
       },
       fontFamily: {
-        // class name kept for compatibility; now maps to Geist (neo-grotesk)
-        'inter-tight': ['"Geist"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
-        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        // class names kept for compatibility; everything is Helvetica Neue (never Inter)
+        'inter-tight': ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        mono: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
       },
     },
   },

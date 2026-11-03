@@ -43,7 +43,6 @@ const BLUE = '#009ddc';
 const SKY = '#ebf7fc';
 const ASH = '#8e8e95';
 const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-const INTER = 'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 /* ---------- small building blocks ---------- */
 
@@ -104,7 +103,7 @@ function ShadowedImg({ src, alt, natural, column = 1440 }: { src: string; alt: s
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col gap-1" style={{ fontFamily: INTER }}>
+    <div className="flex flex-col gap-1" style={{ fontFamily: HELV }}>
       <p className="text-[44px] md:text-[52px] leading-[63px] tracking-[0.01em]" style={{ color: BLUE }}>
         {value}
       </p>
@@ -305,24 +304,29 @@ function DiscoverSection() {
         <div className="mt-[123px]">
           {/* the only image with the magnifier (hover zoom + click to enlarge) */}
           <Img src={IMG.thematic} alt="Thematic analysis of 3 interviews: 5 themes, 19 codes and quotes" className="rounded-[20px]" zoom />
+          <p className="mt-5 text-center text-[16px] leading-[1.4] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+            Thematic analysis · 3 interviews
+          </p>
         </div>
 
+        {/* heading left, text right (Harbor's markup) */}
         <TwoCol
-          className="mt-[119px]"
-          left={<Img src={IMG.heard} alt="Our guess: Linkpoints are FairPrice points. 9B+ earned, 0 of 3 interviewees stayed for rewards" />}
+          className="mt-[70px]"
+          left={
+            <H2>
+              What the data said
+              <br />
+              Points earned, but not used
+            </H2>
+          }
           right={
-            <div className="md:pt-4">
-              <H2>
-                What the data said
-                <br />
-                Points earned, but not used
-              </H2>
-              <Body className="mt-4">
+            <div>
+              <Body>
                 Our 3 users barely used Trust Bank’s rewards. So we went back to the data. How many points do Trust Bank users actually earn?
               </Body>
               <Body className="mt-6">
-                Trust Bank already gives out billions of points, but for the users we spoke to, they weren’t a reason to come back. Its biggest strength was going
-                to waste. Was our guess right? We went back to our interview notes to check.
+                Trust Bank already gives out over 9 billion points, but the users we spoke to didn’t see them as a reason to come back. Its biggest strength was
+                going to waste. Was our guess right? We went back to our interview notes to check.
               </Body>
             </div>
           }
@@ -508,7 +512,7 @@ function TestSection() {
         </Body>
 
         {/* assumption → validated */}
-        <div className="mt-[30px] rounded-[20px] border border-[rgba(0,13,16,0.1)] bg-white px-6 md:px-[30px] py-7 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-8 items-center" style={{ fontFamily: INTER }}>
+        <div className="mt-[30px] rounded-[20px] border border-[rgba(0,13,16,0.1)] bg-white px-6 md:px-[30px] py-7 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 md:gap-8 items-center" style={{ fontFamily: HELV }}>
           <div>
             <p className="text-[13px] tracking-[0.08em] text-[#8e8e95]">OUR ASSUMPTION</p>
             <p className="mt-2 text-[19px] md:text-[22px] leading-[1.4] font-medium text-[#000d10]">If Linkpoints are easier to reach, users will use Trust Bank more often.</p>
@@ -527,7 +531,7 @@ function TestSection() {
         </div>
 
         {/* key numbers */}
-        <div className="mt-[30px] grid grid-cols-1 sm:grid-cols-3 gap-8 px-[30px]" style={{ fontFamily: INTER }}>
+        <div className="mt-[30px] grid grid-cols-1 sm:grid-cols-3 gap-8 px-[30px]" style={{ fontFamily: HELV }}>
           <div>
             <p className="text-[52px] leading-[1.1] font-bold" style={{ color: BLUE }}>
               77%
@@ -620,7 +624,7 @@ function TestSection() {
 
 function ReflectionSection() {
   return (
-    <section className="bg-[#002742] pt-[120px] pb-[120px]" style={{ fontFamily: INTER }}>
+    <section className="bg-[#002742] pt-[120px] pb-[120px]" style={{ fontFamily: HELV }}>
       <Container>
         <Eyebrow label="REFLECTION" light />
         <div className="mt-4 flex flex-col md:flex-row gap-12 md:gap-[120px] items-start">

@@ -8,8 +8,8 @@ import { PROJECT_ICONS } from './projectIcons';
 /**
  * Top bar on case-study pages, from Harbor's Figma (Section 1 / node 1012:11376):
  * a dark tray floating at the top centre with  [↩ Back]  …  [icon  Next project].
- * Tray: #2B2B2B, 6px padding, 46px gap, 12px corners. Back: #0A0A0A, Inter Semi Bold 17.
- * Project button: white, 40px icon (4px corners), Inter Medium 17.
+ * Tray: #2B2B2B, 6px padding, 46px gap, 12px corners. Back: #0A0A0A, Helvetica Neue Bold 17.
+ * Project button: white, 40px icon (4px corners), Helvetica Neue Medium 17.
  *
  * The project button always points at the next case in the loop:
  * Trust Bank → GameCove → UTrada → Trust Bank. The current case is read from the URL,
@@ -58,7 +58,7 @@ export function CaseNav({ onBack }: { onBack: () => void; next?: unknown }) {
           onClick={onBack}
           aria-label="Back to projects"
           className="flex items-center gap-2 rounded-lg bg-[#0A0A0A] text-white px-5 py-3 font-semibold text-[17px] tracking-[-0.01em] hover:bg-[#1c1c1c] transition-colors"
-          style={{ fontFamily: 'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           {...item(0)}
         >
           <CornerUpLeftIcon className="w-[18px] h-[18px]" strokeWidth={2.4} aria-hidden="true" />
@@ -68,7 +68,7 @@ export function CaseNav({ onBack }: { onBack: () => void; next?: unknown }) {
           href={next.route}
           aria-label={`Next project: ${next.name}`}
           className="flex items-center gap-2.5 rounded-lg bg-white text-[#0A0A0A] pl-2.5 pr-5 py-2 text-[17px] font-medium tracking-[-0.01em] hover:bg-[#F2F2F2] transition-colors whitespace-nowrap"
-          style={{ fontFamily: 'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif' }}
+          style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}
           {...item(1)}
         >
           <img src={next.icon} alt="" className="w-10 h-10 rounded-[4px] object-cover" />

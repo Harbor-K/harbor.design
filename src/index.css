@@ -1,5 +1,5 @@
 /* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+/* No web fonts: the whole site uses Helvetica Neue (system font) — never Inter. The dot font is drawn in SVG. */
 
 /* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
 @import 'tailwindcss/base';
@@ -27,7 +27,7 @@ body,
   background-color: var(--paper);
 }
 body {
-  font-family: 'Geist', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
@@ -125,7 +125,7 @@ body {
 }
 /* small technical labels */
 .mono-label {
-  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 11px;
   line-height: 1.5;
   letter-spacing: 0.13em;

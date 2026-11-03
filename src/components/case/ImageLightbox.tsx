@@ -226,7 +226,7 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
             </motion.div>
 
             {shown.alt && (
-              <p className="mt-4 max-w-[760px] text-center text-[16px] leading-[1.5] text-white/70" style={{ fontFamily: 'Inter, "Helvetica Neue", Helvetica, Arial, sans-serif' }}>
+              <p className="mt-4 max-w-[760px] text-center text-[16px] leading-[1.5] text-white/70" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
                 {shown.alt}
               </p>
             )}
