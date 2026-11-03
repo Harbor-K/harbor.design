@@ -21,8 +21,8 @@ const IMG = {
   logo: A + 'logo.svg',
   heroVideo: A + 'hero-sfx.mp4',
   heroPoster: A + 'hero-sfx-poster.jpg',
-  journeyVideo: A + 'journey-flat.mp4',
-  journeyPoster: A + 'journey-flat-poster.jpg',
+  journeyVideo: A + 'journey-motion.mp4',
+  journeyPoster: A + 'journey-motion-poster.jpg',
   processVideo: A + 'process-motion.mp4',
   processPoster: A + 'process-motion-poster.jpg',
   article: A + 'article.png',
@@ -41,10 +41,10 @@ const IMG = {
   sketchPhoto: A + 'sketch-photo.png',
   sketch1a: A + 'sketch-1a.jpg',
   sketch1b: A + 'sketch-1b.jpg',
-  sketch2a: A + 'sketch-2a.jpg',
-  sketch2b: A + 'sketch-2b.jpg',
-  sketch3a: A + 'sketch-3a.jpg?v=2',
-  sketch3b: A + 'sketch-3b.jpg',
+  sketch2a: A + 'sketch-2a.png',
+  sketch2b: A + 'sketch-2b.png',
+  sketch3a: A + 'sketch-3a.png',
+  sketch3b: A + 'sketch-3b.png',
   workshop1: A + 'workshop-1.jpg',
   workshop2: A + 'workshop-2.jpg?v=2',
   ideas: A + 'ideas.png',
@@ -632,14 +632,16 @@ function DefineSection() {
           answers. Mei is a student. Daniel is an engineer.
         </Body>
         <div className="mt-[70px]">
-          {/* journey motion: Harbor's GIF as a silent loop, white card removed and cropped to the 1440 column */}
-          <Motion
-            src={IMG.journeyVideo}
-            poster={IMG.journeyPoster}
-            ratio="1442 / 546"
-            bg={SKY}
-            label="Journey map for Mei and Daniel across 5 stages: both drop at first use, the breaking point"
-          />
+          {/* journey motion: Harbor's GIF as a silent loop with its white card, 1504 wide like the Figma card (32px past the column each side) */}
+          <div className="min-[1488px]:mx-[-2.22%]">
+            <Motion
+              src={IMG.journeyVideo}
+              poster={IMG.journeyPoster}
+              ratio="1504 / 634"
+              bg={SKY}
+              label="Journey map for Mei and Daniel across 5 stages: both drop at first use, the breaking point"
+            />
+          </div>
         </div>
         <p className="mt-[20px] text-[16px] md:text-[17px] leading-[1.4] text-center text-[#8e8e95]" style={{ fontFamily: HELV }}>
           Quotes are paraphrased from our interviews, not word for word.
@@ -738,7 +740,7 @@ function IdeaCards() {
                 src={src}
                 alt={`Hand sketch ${k + 1} for idea ${i + 1}`}
                 loading="lazy"
-                className="block w-[calc(50%-10px)] max-w-[178px] aspect-[178/304] object-cover rounded-[11px]"
+                className="block w-[calc(50%-10px)] max-w-[178px] aspect-[178/304] object-contain bg-white rounded-[11px]"
               />
             ))}
           </div>
