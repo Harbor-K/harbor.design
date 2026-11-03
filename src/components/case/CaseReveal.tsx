@@ -22,7 +22,7 @@ export function CaseReveal({ children }: { children: React.ReactNode }) {
       Array.from(col.children).forEach((child, i) => {
         const el = child as HTMLElement;
         el.classList.add('reveal');
-        el.style.setProperty('--reveal-delay', `${Math.min(i, 4) * 70}ms`);
+        el.style.setProperty('--reveal-delay', `${Math.min(i, 4) * 120}ms`);
         items.push(el);
       });
     });

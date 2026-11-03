@@ -39,8 +39,8 @@ const IMG = {
   hmw: A + 'hmw.png',
   dvf: A + 'dvf.png',
   sketchPhoto: A + 'sketch-photo.png',
-  sketch1a: A + 'sketch-1a.jpg',
-  sketch1b: A + 'sketch-1b.jpg',
+  sketch1a: A + 'sketch-1a.png',
+  sketch1b: A + 'sketch-1b.png',
   sketch2a: A + 'sketch-2a.png?v=2',
   sketch2b: A + 'sketch-2b.png?v=2',
   sketch3a: A + 'sketch-3a.png?v=2',
@@ -563,7 +563,7 @@ function HmwStickies() {
             boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
             opacity: shown ? 1 : 0,
             transform: shown ? 'scale(1) rotate(0deg)' : `scale(0.6) rotate(${tilt[i]}deg) translateY(30px)`,
-            transition: `opacity 0.25s ease ${i * 0.35}s, transform 0.55s cubic-bezier(0.34, 1.8, 0.64, 1) ${i * 0.35}s`,
+            transition: `opacity 0.4s ease ${i * 0.5}s, transform 0.8s cubic-bezier(0.34, 1.8, 0.64, 1) ${i * 0.5}s`,
           }}
         >
           <p className="absolute left-[22px] top-[22px] text-[16px] leading-[20px] font-bold text-[rgba(0,13,16,0.5)]">{h.n}</p>
@@ -714,7 +714,7 @@ function IdeaCards() {
           style={{
             opacity: shown ? 1 : 0,
             transform: shown ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.94)',
-            transition: `opacity 0.5s ease ${i * 0.22}s, transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.22}s`,
+            transition: `opacity 0.8s ease ${i * 0.35}s, transform 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.35}s`,
           }}
         >
           {/* 1 · number + idea name */}
