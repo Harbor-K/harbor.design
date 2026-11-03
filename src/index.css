@@ -153,3 +153,12 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+/* Kim LLM: the yellow light that runs around the input card while it "thinks" */
+@keyframes kim-llm-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+.kim-llm-spin {
+  animation: kim-llm-spin 1.4s linear infinite;
+}

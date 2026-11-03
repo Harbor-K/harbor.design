@@ -13,7 +13,8 @@ import { useViewportSize } from '../../hooks/useViewportSize';
  * The page after the current one peeks in at the bottom, like the next page of a book.
  *
  * Each page: project name in mixed dots on the left; on the right, the project title in big bold type
- * with the year, one line of detail and a large "View case" button right under it (all right-aligned).
+ * with the year, one line of detail and a "View case" button right under it (all right-aligned).
+ * The button matches the header nav buttons: 8px corners, 20 x 12 padding, 17px medium text.
  * Colours from each project's brand: Trust Bank blue -> GameCove navy -> UTrada purple. The UTrada page
  * fades into the site's soft grey (SOFT_GREY), and About me keeps that same grey, so they read as one.
  *
@@ -141,14 +142,14 @@ export function Experience() {
                       {pg.href ? (
                         <a
                           href={pg.href}
-                          className="inline-flex items-center rounded-full px-9 py-4 text-[20px] font-semibold transition-opacity duration-150 hover:opacity-85"
+                          className="inline-flex items-center rounded-lg px-5 py-3 text-[17px] font-medium tracking-tight transition-opacity duration-150 hover:opacity-85"
                           style={{ background: pg.ink, color: pg.ink === '#FFFFFF' ? '#0A0A0A' : '#FFFFFF' }}
                         >
                           View case
                         </a>
                       ) : (
                         <span
-                          className="inline-flex items-center rounded-full px-9 py-4 text-[20px] font-semibold opacity-80"
+                          className="inline-flex items-center rounded-lg px-5 py-3 text-[17px] font-medium tracking-tight opacity-80"
                           style={{ border: `2px solid ${pg.ink}` }}
                         >
                           Coming soon

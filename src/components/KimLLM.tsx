@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUpIcon, BrainIcon, BriefcaseIcon, UtensilsIcon, XIcon, SendIcon } from 'lucide-react';
+import { ArrowUpIcon, BrainIcon, BriefcaseIcon, CompassIcon, SparklesIcon, XIcon } from 'lucide-react';
 import { DotMatrix } from './DotMatrix';
 import { BOOK_CALL_URL, EMAIL } from '../data/content';
 import { WHATSAPP_URL } from '../data/links';
@@ -15,9 +15,11 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
  *
  * Header: a brain icon next to the KIM LLM dot-type name (replaced the blinking dot),
  * sized so its drawing is as tall as the dot letters (7 rows x 3.9px).
- * Icon chips under the input: Clear, Work (asks about her work), Food (her food & drink fun fact),
- * and WhatsApp — opens a small WhatsApp-style chat card (after the "Chat on WhatsApp" reference)
- * with a button that opens WhatsApp.
+ *
+ * Interaction (after poulo.site): the icon chips under the input — Your work, How you design, Fun fact —
+ * fill the input with a question instead of sending it. The send button turns black once there is text.
+ * On send, a yellow light runs around the input card and the send button spins while Kim LLM "thinks",
+ * then the answer is typed out. Footnote: Book a call or WhatsApp for anything else.
  */
 
 const AVATAR = '/assets/objects/face-color.webp';
@@ -73,7 +75,7 @@ const INTENTS: Intent[] = [
     ko: '다국어 UI를 디자인해요. 최대 11개 언어까지 다뤘고, ETO Markets에서는 트레이딩 플랫폼을 9개 언어로 확장했어요.',
   },
   {
-    keys: /skill|good at|strength|research|usability|design system|prototyp|dashboard|what (do|can) you do|스킬|잘하|강점|리서치|디자인 시스템|뭐 해/i,
+    keys: /how (do )?you design|design process|your process|approach|skill|good at|strength|research|usability|design system|prototyp|dashboard|what (do|can) you do|디자인 (방식|과정)|스킬|잘하|강점|리서치|디자인 시스템|뭐 해/i,
     en: 'Three things, mostly: research that turns raw data into clear decisions (interviews, usability tests, synthesis); product UI and design systems for fintech and trading; and data dashboards and AI-assisted prototypes, made fast.',
     ko: '크게 세 가지예요. 인터뷰·사용성 테스트·분석으로 데이터를 명확한 결정으로 바꾸는 리서치, 핀테크·트레이딩 프로덕트 UI와 디자인 시스템, 그리고 데이터 대시보드와 AI로 빠르게 만드는 프로토타입이에요.',
   },
@@ -101,19 +103,14 @@ function answer(q: string): string {
   return korean ? hit.ko : hit.en;
 }
 
-/** WhatsApp glyph (simple single-colour mark) */
-function WhatsAppIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
-      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.26 8.26 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.55-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.08.14-1.18-.06-.11-.22-.17-.47-.29z" />
-    </svg>
-  );
-}
-
+// chips fill the input with a question (they don't send it)
 const CHIPS = [
-  { icon: BriefcaseIcon, label: 'Work', ask: 'What have you worked on?' },
-  { icon: UtensilsIcon, label: 'Food', ask: "What's your favourite food or drink?" },
+  { icon: BriefcaseIcon, label: 'Your work', ask: 'What have you worked on?' },
+  { icon: CompassIcon, label: 'How you design', ask: 'How do you design?' },
+  { icon: SparklesIcon, label: 'Fun fact', ask: 'Tell me a fun fact about you.' },
 ];
+
+const THINK_MS = 1100; // how long the light runs before the answer starts typing
 
 export function KimLLM() {
   const reducedMotion = usePrefersReducedMotion();
@@ -122,9 +119,10 @@ export function KimLLM() {
   const [shown, setShown] = useState(0);
   const [draft, setDraft] = useState('');
   const [tip, setTip] = useState<string | null>(null);
-  const [waOpen, setWaOpen] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-  const busy = typing !== null;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const busy = typing !== null || thinking;
 
   // type the answer out a few characters at a time
   useEffect(() => {
@@ -148,23 +146,32 @@ export function KimLLM() {
   const ask = (q: string) => {
     const text = q.trim();
     if (!text || busy) return;
-    setMsgs((m) => [...m, { role: 'you', text }]);
-    setDraft('');
+    setThinking(true);
     setTimeout(() => {
+      setThinking(false);
+      setMsgs((m) => [...m, { role: 'you', text }]);
+      setDraft('');
       setShown(0);
       setTyping(answer(text));
-    }, reducedMotion ? 0 : 380);
+    }, reducedMotion ? 0 : THINK_MS);
+  };
+
+  // chip -> put its question in the input, ready to send
+  const fill = (q: string) => {
+    if (busy) return;
+    setDraft(q);
+    requestAnimationFrame(() => inputRef.current?.focus());
   };
 
   const clear = () => {
     setMsgs([]);
     setTyping(null);
+    setThinking(false);
     setShown(0);
     setDraft('');
   };
 
-  const empty = msgs.length === 0 && !busy;
-  const now = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const empty = msgs.length === 0 && typing === null;
 
   return (
     <div className="relative flex flex-col rounded-[28px] border border-[rgba(10,10,10,0.1)] bg-white p-6 md:p-8">
@@ -189,56 +196,21 @@ export function KimLLM() {
             <KimLine key={i} text={m.text} />
           )
         )}
-        {busy && <KimLine text={typing!.slice(0, shown)} cursor />}
+        {typing !== null && <KimLine text={typing.slice(0, shown)} cursor />}
       </div>
 
-      {/* input card with a soft colour glow, like the reference */}
+      {/* input card. Behind it, a yellow light: soft and still at rest, running around the card while Kim LLM thinks */}
       <div className="relative">
         <div
           aria-hidden="true"
-          className="absolute -inset-3 rounded-[28px] blur-2xl opacity-70 pointer-events-none"
-          style={{ background: 'radial-gradient(60% 80% at 85% 70%, rgba(255,120,200,0.35), transparent 70%), radial-gradient(60% 80% at 95% 20%, rgba(120,140,255,0.35), transparent 70%)' }}
-        />
-
-        {/* WhatsApp chat card (opens from the WhatsApp chip) */}
-        <AnimatePresence>
-          {waOpen && (
-            <motion.div
-              role="dialog"
-              aria-label="Chat on WhatsApp"
-              initial={{ opacity: 0, y: 10, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.97 }}
-              transition={{ duration: reducedMotion ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute left-0 bottom-full mb-3 z-20 w-[300px] max-w-[90vw] overflow-hidden rounded-xl bg-[#111B21] shadow-[0_12px_32px_rgba(0,0,0,0.28)] origin-bottom-left"
-            >
-              <div className="flex items-center justify-between bg-[#008069] px-4 py-3 text-white">
-                <span className="flex items-center gap-2 text-[16px] font-semibold">
-                  <WhatsAppIcon className="w-5 h-5" />
-                  WhatsApp
-                </span>
-                <button type="button" onClick={() => setWaOpen(false)} aria-label="Close WhatsApp chat" className="p-1 -mr-1 rounded hover:bg-white/15">
-                  <XIcon className="w-5 h-5" aria-hidden="true" />
-                </button>
-              </div>
-              <div className="px-4 py-5">
-                <div className="max-w-[230px] rounded-lg rounded-tl-none bg-[#202C33] px-3.5 py-2.5 text-white">
-                  <p className="text-[16px] leading-snug">Hi 👋 I'm Harbor. Send me a message and I'll get back to you.</p>
-                  <p className="mt-1 text-right text-[12px] text-white/50">{now}</p>
-                </div>
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-[16px] font-semibold text-[#0A0A0A] hover:bg-[#3EE07A] transition-colors"
-                >
-                  <SendIcon className="w-4 h-4" aria-hidden="true" />
-                  Send a message
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          className="absolute -inset-[3px] rounded-[18px] overflow-hidden pointer-events-none transition-opacity duration-300"
+          style={{ opacity: thinking ? 1 : 0.35, filter: 'blur(8px)' }}
+        >
+          <div
+            className={`absolute left-1/2 top-1/2 w-[160%] aspect-square -translate-x-1/2 -translate-y-1/2 ${thinking && !reducedMotion ? 'kim-llm-spin' : ''}`}
+            style={{ background: 'conic-gradient(from 0deg, transparent 0deg, rgba(255,230,0,0.95) 60deg, rgba(255,240,120,0.6) 110deg, transparent 170deg, transparent 360deg)' }}
+          />
+        </div>
 
         <form
           className="relative rounded-2xl border border-[rgba(10,10,10,0.1)] bg-white shadow-[0_6px_24px_rgba(10,10,10,0.06)] p-3"
@@ -252,6 +224,7 @@ export function KimLLM() {
           </label>
           <input
             id="kim-llm-input"
+            ref={inputRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Ask about my work or experience..."
@@ -264,21 +237,28 @@ export function KimLLM() {
                 <XIcon className="w-[18px] h-[18px]" aria-hidden="true" />
               </ChipButton>
               {CHIPS.map(({ icon: Icon, label, ask: q }) => (
-                <ChipButton key={label} label={label} onClick={() => ask(q)} tip={tip} setTip={setTip} disabled={busy}>
+                <ChipButton key={label} label={label} onClick={() => fill(q)} tip={tip} setTip={setTip} disabled={busy}>
                   <Icon className="w-[18px] h-[18px]" aria-hidden="true" />
                 </ChipButton>
               ))}
-              <ChipButton label="WhatsApp" onClick={() => setWaOpen((o) => !o)} tip={tip} setTip={setTip} active={waOpen}>
-                <WhatsAppIcon className="w-[19px] h-[19px]" />
-              </ChipButton>
             </div>
             <button
               type="submit"
               disabled={!draft.trim() || busy}
-              aria-label="Send"
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[rgba(10,10,10,0.15)] bg-white text-[#0A0A0A] transition-colors duration-150 enabled:hover:bg-[#0A0A0A] enabled:hover:text-white disabled:opacity-40"
+              aria-label={busy ? 'Thinking' : 'Send'}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-150 ${
+                busy
+                  ? 'bg-white'
+                  : draft.trim()
+                  ? 'bg-[#0A0A0A] text-white hover:bg-[#2B2B2B]'
+                  : 'border border-[rgba(10,10,10,0.15)] bg-white text-[#0A0A0A] opacity-40'
+              }`}
             >
-              <ArrowUpIcon className="w-[18px] h-[18px]" aria-hidden="true" />
+              {busy ? (
+                <span className="block w-6 h-6 rounded-full border-2 border-[#E5E5E5] border-t-[#0A0A0A] animate-spin" aria-hidden="true" />
+              ) : (
+                <ArrowUpIcon className="w-[18px] h-[18px]" aria-hidden="true" />
+              )}
             </button>
           </div>
         </form>
@@ -288,6 +268,10 @@ export function KimLLM() {
         Kim LLM answers only from what is on this site.{' '}
         <a href={BOOK_CALL_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[#3B5BD9]">
           Book a call
+        </a>{' '}
+        or{' '}
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[#3B5BD9]">
+          WhatsApp
         </a>{' '}
         for anything else.
       </p>
