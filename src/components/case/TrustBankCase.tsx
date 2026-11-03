@@ -49,6 +49,12 @@ const IMG = {
   workshop2: A + 'workshop-2.jpg?v=2',
   ideas: A + 'ideas.png',
   deliver: A + 'deliver.png',
+  deliver1: A + 'deliver-1.mp4',
+  deliver1Poster: A + 'deliver-1-poster.jpg',
+  deliver2: A + 'deliver-2.mp4',
+  deliver2Poster: A + 'deliver-2-poster.jpg',
+  deliver3: A + 'deliver-3.mp4',
+  deliver3Poster: A + 'deliver-3-poster.jpg',
   ut: A + 'ut-session.png',
   fix1: A + 'fix1.png',
   fix34: A + 'fix34.png',
@@ -802,6 +808,146 @@ function DevelopSection() {
   );
 }
 
+const FEATURES = [
+  {
+    t: 'Coupons that find you',
+    d: 'Near a store, the right coupon pops up. One tap adds it to your card. Then it’s used automatically when you pay.',
+    v: IMG.deliver1,
+    poster: IMG.deliver1Poster,
+    label: 'Lock-screen coupon alert, one tap adds the Kopitiam coupon to the Trust card',
+  },
+  {
+    t: 'One rewards hub',
+    d: 'Points, quests, coupons and stamps sit on one page. Trust+, the premium level, sat at the bottom in this version — testing moved it to the top.',
+    v: IMG.deliver2,
+    poster: IMG.deliver2Poster,
+    label: 'Adding the LinkPoints widget to the home screen',
+  },
+  {
+    t: 'Points you can see grow',
+    d: 'A bar shows how far you are from the next level. You can link FairPrice in one tap. A widget shows your points without opening the app.',
+    v: IMG.deliver3,
+    poster: IMG.deliver3Poster,
+    label: 'Linking FairPrice in one tap and earning 50 points',
+  },
+];
+
+/**
+ * Deliver: 3 feature cards on the left, the phone plays that feature's screen recording on the right.
+ * The active card's bar fills as its video plays; when it ends the next feature starts (3 → 1 loops).
+ * The block is pinned while you scroll through it, and scrolling also moves 1 → 2 → 3.
+ */
+function DeliverShowcase() {
+  const outer = useRef<HTMLDivElement>(null);
+  const vids = useRef<(HTMLVideoElement | null)[]>([]);
+  const [active, setActive] = useState(0);
+  const [prog, setProg] = useState(0);
+  const lastStep = useRef(0);
+
+  // scroll moves between features (one third of the pinned stretch each)
+  useEffect(() => {
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const el = outer.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const travel = el.offsetHeight - window.innerHeight;
+      if (travel <= 0 || r.top > 0 || r.bottom < window.innerHeight) return;
+      const step = Math.min(2, Math.floor((-r.top / travel) * 3));
+      if (step !== lastStep.current) {
+        lastStep.current = step;
+        setActive(step);
+      }
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    window.addEventListener('scroll', on, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', on);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // play only the active feature's video, from the start
+  useEffect(() => {
+    vids.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === active) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+    setProg(0);
+  }, [active]);
+
+  return (
+    <div ref={outer} className="relative mt-[60px] lg:h-[280vh]">
+      <div className="lg:sticky lg:top-[calc(50vh-430px)] grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-[60px] items-center" style={{ fontFamily: HELV }}>
+        <div className="flex flex-col gap-[20px]">
+          {FEATURES.map((f, i) => {
+            const on = i === active;
+            return (
+              <button
+                key={f.t}
+                type="button"
+                onClick={() => setActive(i)}
+                className="text-left rounded-[20px] bg-white px-[30px] py-[30px] transition-all duration-500"
+                style={{ border: `1px solid ${on ? BLUE : 'rgba(0,13,16,0.08)'}`, boxShadow: on ? '0 10px 30px rgba(0,157,220,0.12)' : 'none' }}
+                aria-pressed={on}
+              >
+                <p className="text-[16px] leading-[20px] font-medium" style={{ color: on ? BLUE : '#8e8e95' }}>
+                  0{i + 1}
+                </p>
+                <p className="mt-[10px] text-[24px] leading-[30px] font-bold transition-colors duration-500" style={{ color: on ? INK : '#8e8e95' }}>
+                  {f.t}
+                </p>
+                <p className="mt-[10px] text-[18px] leading-[28px] transition-colors duration-500" style={{ color: on ? '#333' : '#a6a6ad' }}>
+                  {f.d}
+                </p>
+                <div className="mt-[20px] h-[4px] rounded-full bg-[#e6f4fa] overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${on ? prog * 100 : 0}%`, background: BLUE }} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* phone */}
+        <div className="mx-auto w-[340px] rounded-[60px] bg-black p-[12px] shadow-[0_30px_60px_rgba(0,13,16,0.25)]">
+          <div className="relative overflow-hidden rounded-[48px] bg-white" style={{ aspectRatio: '394 / 852' }}>
+            {FEATURES.map((f, i) => (
+              <video
+                key={f.v}
+                ref={(el) => {
+                  vids.current[i] = el;
+                }}
+                src={f.v}
+                poster={f.poster}
+                muted
+                playsInline
+                preload={i === 0 ? 'auto' : 'metadata'}
+                aria-label={f.label}
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                style={{ opacity: i === active ? 1 : 0 }}
+                onTimeUpdate={(e) => {
+                  if (i === active && e.currentTarget.duration) setProg(e.currentTarget.currentTime / e.currentTarget.duration);
+                }}
+                onEnded={() => {
+                  if (i === active) setActive((active + 1) % FEATURES.length);
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DeliverSection() {
   return (
     <section className="pt-[120px] pb-[120px]" style={{ backgroundColor: SKY }}>
@@ -815,9 +961,7 @@ function DeliverSection() {
         <Body className="mt-4 max-w-[700px]">
           Each feature solves one pain point. Features 1 and 2 make rewards easy to find. Feature 3 makes them easy to use. [ Try the clickable prototype ]
         </Body>
-        <div className="mt-[30px]">
-          <Img src={IMG.deliver} alt="Final design: coupons that find you, one rewards hub, points you can see grow" />
-        </div>
+        <DeliverShowcase />
       </Container>
     </section>
   );
