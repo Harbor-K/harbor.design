@@ -169,7 +169,7 @@ export function Experience() {
       {/* "View case study" button that follows the cursor over a project */}
       <div
         aria-hidden
-        className="pointer-events-none fixed left-0 top-0 z-[60] rounded-lg px-5 py-3 text-[17px] font-medium tracking-tight whitespace-nowrap shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+        className="pointer-events-none fixed left-0 top-0 z-[60] flex h-[120px] w-[120px] items-center justify-center rounded-full text-center text-[16px] leading-[20px] font-medium tracking-tight shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
         style={{
           background: dark ? '#FFFFFF' : '#0A0A0A',
           color: dark ? '#0A0A0A' : '#FFFFFF',
@@ -178,7 +178,9 @@ export function Experience() {
           transition: 'opacity 0.2s ease, transform 0.2s ease-out',
         }}
       >
-        View case study
+        View case
+        <br />
+        study
       </div>
     </section>
   );
