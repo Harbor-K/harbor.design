@@ -36,9 +36,9 @@ interface Page {
 const PAGES: Page[] = [
   {
     name: 'TRUST BANK',
-    year: '[YEAR]',
-    title: 'Rewards UX redesign',
-    sub: '2-person project: research, redesign and usability testing',
+    year: '2026',
+    title: 'Rewards UX revamp',
+    sub: '2-person project: research, revamp and usability testing',
     href: '#/trust-bank',
     // Trust Bank blue (#2E9ADA), lighter at the top
     bg: 'linear-gradient(180deg, #A9DDF8 0%, #6BBDEA 50%, #2E9ADA 100%)',
@@ -46,7 +46,7 @@ const PAGES: Page[] = [
   },
   {
     name: 'GAMECOVE',
-    year: '[YEAR]',
+    year: '2026',
     title: 'AI analytics dashboard',
     sub: '2-person project: helps first-time game creators decide what to fix next',
     href: '#/gamecove', // placeholder case page (lorem ipsum) for now
@@ -56,7 +56,7 @@ const PAGES: Page[] = [
   },
   {
     name: 'UTRADA',
-    year: '[YEAR]',
+    year: '2025',
     title: 'Trading platform design system',
     sub: '100+ components for a global trading platform, 40% faster dev cycles',
     href: '#/utrada', // placeholder case page (lorem ipsum) for now

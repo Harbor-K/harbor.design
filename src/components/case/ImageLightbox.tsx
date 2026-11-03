@@ -1,26 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { XIcon } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
 
 /**
- * Case-study image interactions (event delegation, so the case-study markup barely changes).
- * Only images marked data-zoom="true" get them (at Harbor's request: just the thematic-analysis board):
- *  - Hover: the image scales up inside its own frame and the zoom follows the cursor (magnifier).
- *  - Click: opens the image large in a lightbox; click / X / Esc closes it.
- * Every other image stays still and isn't clickable.
+ * Case-study image hover magnifier (event delegation, so the case-study markup barely changes).
+ * Only images marked data-zoom="true" get it (at Harbor's request: just the thematic-analysis board):
+ * hovering scales the image up inside its own frame and the zoom follows the cursor.
+ * Click-to-enlarge (the lightbox) was removed at Harbor's request; nothing happens on click.
+ * (Component name kept so App.tsx doesn't change.)
  */
 
-// same mask box as the in-page one (Figma frame 1440 x 610) — kept in case the UT photo is ever opted in
-const UT_MASK = { left: 1061 / 1440, top: 355 / 610, width: 182 / 1440, height: 243 / 610 };
 const HOVER_SCALE = 1.8;
 
-interface Shown {
-  src: string;
-  alt: string;
-}
-
-const isZoomable = (img: HTMLImageElement) => img.dataset.zoom === 'true';
-const isHoverScalable = (img: HTMLImageElement) => isZoomable(img) && !img.src.includes('ut-session');
+const isHoverScalable = (img: HTMLImageElement) => img.dataset.zoom === 'true';
 
 interface ZoomState {
   s: number;
@@ -34,29 +24,8 @@ interface ZoomState {
 
 export function ImageLightbox({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState<Shown | null>(null);
-  const close = useCallback(() => setShown(null), []);
   const zoomsRef = useRef(new Map<HTMLImageElement, ZoomState>());
   const activeRef = useRef<HTMLImageElement | null>(null);
-
-  // mark zoomable images as clickable and open on click
-  useEffect(() => {
-    const root = ref.current;
-    if (!root) return;
-    root.querySelectorAll<HTMLImageElement>('main img').forEach((img) => {
-      if (isZoomable(img)) img.style.cursor = 'zoom-in';
-    });
-    const onClick = (e: MouseEvent) => {
-      const img = (e.target as HTMLElement).closest('img') as HTMLImageElement | null;
-      if (!img || !root.contains(img) || !img.closest('main') || !isZoomable(img)) return;
-      const z = zoomsRef.current.get(img);
-      if (z) z.ts = 1;
-      activeRef.current = null;
-      setShown({ src: img.currentSrc || img.src, alt: img.alt });
-    };
-    root.addEventListener('click', onClick);
-    return () => root.removeEventListener('click', onClick);
-  }, []);
 
   // cursor-following scale hover
   useEffect(() => {
@@ -155,84 +124,5 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // while open: Esc closes the image only (not the whole case study), and the page doesn't scroll
-  useEffect(() => {
-    if (!shown) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopImmediatePropagation();
-        close();
-      }
-    };
-    window.addEventListener('keydown', onKey, true);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey, true);
-      document.body.style.overflow = prev;
-    };
-  }, [shown, close]);
-
-  const isUt = shown?.src.includes('ut-session');
-
-  return (
-    <div ref={ref}>
-      {children}
-
-      <AnimatePresence>
-        {shown && (
-          <motion.div
-            key="lightbox"
-            className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 md:p-10 cursor-zoom-out"
-            style={{ backgroundColor: 'rgba(0,13,16,0.82)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={close}
-            role="dialog"
-            aria-modal="true"
-            aria-label={shown.alt || 'Enlarged image'}
-          >
-            <button
-              type="button"
-              onClick={close}
-              aria-label="Close image"
-              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors"
-            >
-              <XIcon className="w-4 h-4 text-[#000d10]" strokeWidth={2.4} />
-            </button>
-
-            <motion.div
-              className="relative rounded-[14px] overflow-hidden bg-white shadow-[0_24px_60px_rgba(0,0,0,0.35)]"
-              initial={{ scale: 0.96, y: 8 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.97, y: 4 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <img src={shown.src} alt={shown.alt} className="block max-w-[94vw] md:max-w-[90vw] max-h-[82vh] w-auto h-auto object-contain" />
-              {isUt && (
-                <div
-                  className="absolute backdrop-blur-xl bg-white/10 rounded-[6px]"
-                  style={{
-                    left: `${UT_MASK.left * 100}%`,
-                    top: `${UT_MASK.top * 100}%`,
-                    width: `${UT_MASK.width * 100}%`,
-                    height: `${UT_MASK.height * 100}%`,
-                  }}
-                  aria-hidden="true"
-                />
-              )}
-            </motion.div>
-
-            {shown.alt && (
-              <p className="mt-4 max-w-[760px] text-center text-[16px] leading-[1.5] text-white/70" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
-                {shown.alt}
-              </p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+  return <div ref={ref}>{children}</div>;
 }

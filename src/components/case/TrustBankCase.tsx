@@ -271,7 +271,7 @@ function DiscoverSection() {
           right={
             <div className="md:pt-[47px]">
               <Img src={IMG.article} alt="News article: only 17% of Trust Bank users use it as their main bank" className="rounded-[12px]" />
-              <p className="mt-3 text-[15px] text-[#8e8e95]" style={{ fontFamily: HELV }}>
+              <p className="mt-3 text-center text-[16px] text-[#8e8e95]" style={{ fontFamily: HELV }}>
                 Source: The Asian Banker (May 2026)
               </p>
             </div>
