@@ -15,8 +15,8 @@ import { CV_URL, CV_LABEL } from '../../data/links';
  */
 // Harbor at a sticky-note wall (3:2, colour)
 const ABOUT_PHOTO = '/assets/main-v2/about-photo.webp';
-// two-line bio, shortened from the earlier four-line version (same facts)
-const BIO = 'I observe objectively to design clearly. 3+ years in fintech and e‑learning across Korea, Australia and the UK.';
+// two-line bio (Harbor's wording, Nov 2026)
+const BIO = "I'm an AI-native product designer who owns the work end to end, from finding the problem to shipping\u00a0the\u00a0fix.";
 const LINKEDIN_URL = '[URL]'; // TODO: Harbor's LinkedIn profile URL
 
 const BTN =

@@ -35,9 +35,9 @@ interface Intent {
 // Every fact below is already stated elsewhere on the site. Order matters: the first match wins.
 const INTENTS: Intent[] = [
   {
-    keys: /fun fact|tmi|random fact|caffeine|coffee|milk tea|food|drink|eat|snack|favou?rite|재밌|재미있|커피|카페인|밀크티|음식|먹|음료|좋아하/i,
-    en: 'Fun fact: my go-to caffeine is milk tea. It is hiding in the circles at the top of this page — hover the biggest one.',
-    ko: 'TMI 하나: 제 최애 카페인은 밀크티예요. 페이지 맨 위 동그라미들 사이에 숨어 있어요. 제일 큰 동그라미에 마우스를 올려 보세요.',
+    keys: /fun fact|tmi|random fact|butter|walk|foodie|caffeine|coffee|milk tea|food|drink|eat|snack|favou?rite|버터|산책|재밌|재미있|커피|카페인|밀크티|음식|먹|음료|좋아하/i,
+    en: "I'm a foodie who loves a good walk. Lately I eat a lot of butter. I swear it helps me focus.",
+    ko: '산책을 좋아하는 푸디예요. 요즘 버터를 많이 먹는데, 제가 느끼기엔 집중력에 도움이 돼요.',
   },
   {
     keys: /work with you|hire|hiring|contact|email|book a call|call you|available|freelance|collab|whatsapp|연락|채용|협업|함께 일|메일|미팅|왓츠앱/i,
@@ -75,7 +75,12 @@ const INTENTS: Intent[] = [
     ko: '다국어 UI를 디자인해요. 최대 11개 언어까지 다뤘고, ETO Markets에서는 트레이딩 플랫폼을 9개 언어로 확장했어요.',
   },
   {
-    keys: /how (do )?you design|design process|your process|approach|skill|good at|strength|research|usability|design system|prototyp|dashboard|what (do|can) you do|디자인 (방식|과정)|스킬|잘하|강점|리서치|디자인 시스템|뭐 해/i,
+    keys: /how (do )?you design|design process|your process|approach|end.to.end|ownership|디자인 (방식|과정)|어떻게 디자인/i,
+    en: 'End to end. I start by finding the real problem in research and data, then take it through ideas, design and testing to a solution that ships. I own the design along the way, not just the screens.',
+    ko: '처음부터 끝까지 맡아요. 리서치와 데이터에서 진짜 문제를 찾고, 아이디어·디자인·테스트를 거쳐 실제로 나가는 해결책까지 가져가요. 화면만이 아니라 디자인 전체를 책임져요.',
+  },
+  {
+    keys: /skill|good at|strength|research|usability|design system|prototyp|dashboard|what (do|can) you do|스킬|잘하|강점|리서치|디자인 시스템|뭐 해/i,
     en: 'Three things, mostly: research that turns raw data into clear decisions (interviews, usability tests, synthesis); product UI and design systems for fintech and trading; and data dashboards and AI-assisted prototypes, made fast.',
     ko: '크게 세 가지예요. 인터뷰·사용성 테스트·분석으로 데이터를 명확한 결정으로 바꾸는 리서치, 핀테크·트레이딩 프로덕트 UI와 디자인 시스템, 그리고 데이터 대시보드와 AI로 빠르게 만드는 프로토타입이에요.',
   },
