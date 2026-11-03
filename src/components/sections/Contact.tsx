@@ -3,6 +3,8 @@ import { EMAIL, INSTAGRAM_URL, BOOK_CALL_URL, PROJECTS } from '../../data/conten
 import { DotField } from '../DotField';
 
 // footer project list: the case studies plus UTrada (the third project in the Projects section)
+// each goes straight to its case page
+const CASE_HREF: Record<string, string> = { 'Trust Bank': '#/trust-bank', GameCove: '#/gamecove', UTrada: '#/utrada' };
 const FOOTER_PROJECTS = [...PROJECTS.map((p) => p.name), 'UTrada'];
 const FIELD_H = 260; // the dot ground along the bottom
 const LINKEDIN_URL = '[URL]'; // TODO: Harbor's LinkedIn profile URL
@@ -36,7 +38,7 @@ export function Contact() {
             <ul className="space-y-2">
               {FOOTER_PROJECTS.map((name) => (
                 <li key={name}>
-                  <a href="#work" className="text-lg hover:text-[#3B5BD9] transition-colors duration-150">
+                  <a href={CASE_HREF[name] ?? '#work'} className="text-lg hover:text-[#3B5BD9] transition-colors duration-150">
                     {name}
                   </a>
                 </li>

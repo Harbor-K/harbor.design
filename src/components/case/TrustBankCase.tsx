@@ -21,8 +21,8 @@ const IMG = {
   logo: A + 'logo.svg',
   heroVideo: A + 'hero-sfx.mp4',
   heroPoster: A + 'hero-sfx-poster.jpg',
-  journeyVideo: A + 'journey-motion.mp4',
-  journeyPoster: A + 'journey-motion-poster.jpg',
+  journeyVideo: A + 'journey-flat.mp4',
+  journeyPoster: A + 'journey-flat-poster.jpg',
   processVideo: A + 'process-motion.mp4',
   processPoster: A + 'process-motion-poster.jpg',
   article: A + 'article.png',
@@ -522,12 +522,50 @@ const HMW = [
   { n: 'HMW 3', q: 'Make collecting points feel worth it?', bg: '#a8e3b4', icon: IMG.hmwIcon3 },
 ];
 
-/** Figma "HMW · sticky cluster": 3 stickies 300×300, 40 apart (interaction to come) */
+/** reveal once when scrolled into view (used for the "pop, pop, pop" sticky / card entrances) */
+function useShownOnce<T extends HTMLElement>(threshold = 0.3) {
+  const ref = useRef<T>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, shown] as const;
+}
+
+/** Figma "HMW · sticky cluster": 3 stickies 300×300, 40 apart; on scroll they pop in one, two, three like notes slapped on a wall */
 function HmwStickies() {
+  const [ref, shown] = useShownOnce<HTMLDivElement>(0.35);
+  const tilt = [-3, 2, -2];
   return (
-    <div className="flex flex-wrap gap-[40px] xl:justify-end" style={{ fontFamily: HELV, color: INK }}>
-      {HMW.map((h) => (
-        <div key={h.n} className="relative w-[300px] h-[300px] shrink-0" style={{ background: h.bg, boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
+    <div ref={ref} className="flex flex-wrap gap-[40px] xl:justify-end" style={{ fontFamily: HELV, color: INK }}>
+      {HMW.map((h, i) => (
+        <div
+          key={h.n}
+          className="relative w-[300px] h-[300px] shrink-0"
+          style={{
+            background: h.bg,
+            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+            opacity: shown ? 1 : 0,
+            transform: shown ? 'scale(1) rotate(0deg)' : `scale(0.6) rotate(${tilt[i]}deg) translateY(30px)`,
+            transition: `opacity 0.25s ease ${i * 0.35}s, transform 0.55s cubic-bezier(0.34, 1.8, 0.64, 1) ${i * 0.35}s`,
+          }}
+        >
           <p className="absolute left-[22px] top-[22px] text-[16px] leading-[20px] font-bold text-[rgba(0,13,16,0.5)]">{h.n}</p>
           <p className="absolute left-[22px] right-[22px] top-[50px] text-[24px] leading-[31px] font-medium">{h.q}</p>
           <p className="absolute left-[22px] bottom-[22px] text-[16px] leading-[20px] text-[rgba(0,13,16,0.5)]">Harbor Kim</p>
@@ -594,16 +632,14 @@ function DefineSection() {
           answers. Mei is a student. Daniel is an engineer.
         </Body>
         <div className="mt-[70px]">
-          {/* journey motion: Harbor's GIF as a silent loop, 1504 wide like the Figma card (18px past the column each side) */}
-          <div className="min-[1488px]:mx-[-2.22%]">
-            <Motion
-              src={IMG.journeyVideo}
-              poster={IMG.journeyPoster}
-              ratio="1504 / 634"
-              bg={SKY}
-              label="Journey map for Mei and Daniel across 5 stages: both drop at first use, the breaking point"
-            />
-          </div>
+          {/* journey motion: Harbor's GIF as a silent loop, white card removed and cropped to the 1440 column */}
+          <Motion
+            src={IMG.journeyVideo}
+            poster={IMG.journeyPoster}
+            ratio="1442 / 546"
+            bg={SKY}
+            label="Journey map for Mei and Daniel across 5 stages: both drop at first use, the breaking point"
+          />
         </div>
         <p className="mt-[20px] text-[16px] md:text-[17px] leading-[1.4] text-center text-[#8e8e95]" style={{ fontFamily: HELV }}>
           Quotes are paraphrased from our interviews, not word for word.
