@@ -188,11 +188,11 @@ function Timeline() {
 
       {/* pinned year chart */}
       <div className="order-1 md:order-2">
-        <div className="sticky top-[calc(50vh-210px)] flex flex-col gap-[10px]">
+        <div className="sticky top-[calc(50vh-240px)] flex flex-col gap-[10px]">
           {YEARS.map((row) => (
             <div key={row.y} className="flex items-center gap-[20px]">
               <span className="w-[50px] shrink-0 text-[16px] tabular-nums text-[#6b6b70]">{row.y}</span>
-              <div className="flex gap-[6px]">
+              <div className="flex gap-[10px]">
                 {row.tiles.map((t, k) => {
                   const on = lit.includes(t.g);
                   const style: React.CSSProperties = {
@@ -200,9 +200,9 @@ function Timeline() {
                     opacity: active < 0 || on ? 1 : 0.35,
                     outline: on ? `3px solid ${YELLOW}` : '1px solid rgba(0,0,0,0.15)',
                     outlineOffset: on ? 2 : 0,
-                    transform: on ? 'scale(1.06)' : 'none',
+                    transform: on ? 'scale(1.04)' : 'none',
                   };
-                  const cls = 'h-[60px] w-[60px] shrink-0 transition-all duration-500 ease-out';
+                  const cls = 'h-[70px] w-[120px] shrink-0 transition-all duration-500 ease-out';
                   if (t.kind === 'logo' || t.kind === 'img')
                     return <img key={k} src={t.src} alt={t.label} title={t.label} className={`${cls} object-cover`} style={style} />;
                   return (
@@ -303,16 +303,42 @@ function WeekChart() {
   );
 }
 
-/** Instagram profile, embedded open on the page */
+/** Harbor's drawings from her Instagram, scrolling sideways on their own; hovering pauses it */
+const POSTS = ['DL8Xf9CIVmL', 'DEvWIXFoz0f', 'C7-O3sXosWj', 'CkSEAHtpCDa', 'CkPVaFvPPpm', 'CkMpzZSPL_E', 'CkKdm6GJbTa', 'CkFb7jIJK1b', 'CkCiPopJu_l', 'Cg9RKoFphgr'];
+const DRAWINGS = POSTS.map((id, i) => ({ src: `/assets/about/drawing-${i + 1}.jpg`, href: `https://www.instagram.com/p/${id}/` }));
+
 function InstagramEmbed() {
+  const loop = [...DRAWINGS, ...DRAWINGS]; // two copies so the strip loops without a seam
   return (
-    <div className="mx-auto mt-[40px] max-w-[800px] px-6">
-      <div className="overflow-hidden rounded-[20px] border border-[#d9d9d6] bg-white">
-        <iframe title="Harbor's drawings on Instagram (@harbor_0328)" src="https://www.instagram.com/harbor_0328/embed" className="block h-[720px] w-full" loading="lazy" />
+    <div className="mt-[40px]">
+      <style>{`
+        @keyframes ig-strip { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        .ig-strip { animation: ig-strip 60s linear infinite; }
+        .ig-strip-wrap:hover .ig-strip { animation-play-state: paused; }
+        @media (prefers-reduced-motion: reduce) { .ig-strip { animation: none; } }
+      `}</style>
+      <div className="ig-strip-wrap w-full overflow-hidden">
+        <div className="ig-strip flex w-max gap-[20px]">
+          {loop.map((d, i) => (
+            <a
+              key={i}
+              href={d.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-hidden={i >= DRAWINGS.length ? true : undefined}
+              tabIndex={i >= DRAWINGS.length ? -1 : undefined}
+              className="block shrink-0 overflow-hidden rounded-[20px] bg-white transition-transform duration-300 hover:-translate-y-[6px]"
+            >
+              <img src={d.src} alt={i < DRAWINGS.length ? `Drawing ${i + 1} on Harbor's Instagram` : ''} loading="lazy" className="block h-[300px] w-[300px] object-cover" />
+            </a>
+          ))}
+        </div>
       </div>
-      <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="mt-[20px] inline-block text-[16px] underline underline-offset-4">
-        Open @harbor_0328 on Instagram
-      </a>
+      <div className="mx-auto max-w-[800px] px-6">
+        <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="mt-[30px] inline-flex rounded-lg bg-black px-[20px] py-[12px] text-[17px] font-medium text-white transition-opacity hover:opacity-85">
+          See more @harbor_0328
+        </a>
+      </div>
     </div>
   );
 }
