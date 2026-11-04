@@ -305,60 +305,73 @@ const OFF_H = WEEK_TOTAL - WORK_H;
 
 function WeekChart() {
   const [ref, on] = useInView<HTMLDivElement>(0.4);
-  const pct = (h: number) => (h / WEEK_TOTAL) * 100;
+  // hierarchy: title + what the numbers are -> the two groups (big %) -> the bar -> what each colour is
+  const groups = [
+    { name: 'At the desk', items: WEEK.slice(0, 3), h: WORK_H },
+    { name: 'Off the clock', items: WEEK.slice(3), h: OFF_H },
+  ];
+  const share = (h: number) => Math.round((h / WEEK_TOTAL) * 100);
   return (
     <div ref={ref} className="mx-auto max-w-[800px] px-6">
-      <h2 className="text-[26px] md:text-[30px] leading-[1.2] font-bold">How a week of mine adds up</h2>
+      <h2 className="text-[26px] md:text-[30px] leading-[1.2] font-bold" style={{ textWrap: 'balance' } as React.CSSProperties}>How a week of mine adds up</h2>
+      <p className="mt-[10px] text-[16px] text-[#6b6b70]">Hours in a typical week. My own rough estimate, not tracked data.</p>
 
-      {/* labels above, bar, then brackets */}
-      <div className="relative mt-[110px]">
-        <div className="relative flex h-[56px] overflow-visible">
-          {WEEK.map((w, i) => {
-            return (
-              <div
-                key={w.label}
-                className="relative flex items-center justify-center text-[18px] font-bold"
-                style={{
-                  width: `${pct(w.h)}%`,
-                  background: w.bg,
-                  color: w.fg,
-                  transformOrigin: 'left',
-                  transform: on ? 'scaleX(1)' : 'scaleX(0)',
-                  transition: `transform 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 0.12}s`,
-                }}
-              >
-                {w.h}
-                <span
-                  className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-[6px] bg-[#d9d9d6] px-[8px] py-[3px] text-[16px] font-normal text-[#333] ${i % 2 ? '-top-[66px]' : '-top-[36px]'}`}
-                  style={{ opacity: on ? 1 : 0, transition: `opacity 0.4s ease ${0.4 + i * 0.12}s` }}
-                >
-                  {w.label}
-                </span>
-                {i % 2 === 1 && <span className="absolute left-1/2 -top-[34px] h-[34px] w-px bg-[#999]" style={{ opacity: on ? 1 : 0 }} aria-hidden />}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* brackets: at work / off the clock */}
-        <div className="mt-[14px] flex" style={{ opacity: on ? 1 : 0, transition: 'opacity 0.5s ease 1.2s' }}>
-          {[
-            { w: pct(WORK_H), big: `${Math.round(pct(WORK_H))}%`, small: 'at the desk: designing, testing and learning', right: false },
-            { w: pct(OFF_H), big: `${Math.round(pct(OFF_H))}%`, small: 'off the clock: in the water, on paper, on foot', right: true },
-          ].map((b) => (
-            <div key={b.small} style={{ width: `${b.w}%` }} className={`px-[4px] ${b.right ? 'flex flex-col items-end text-right' : ''}`}>
-              <div className="h-[12px] w-full border-x-[2px] border-b-[2px] border-[#8e8e95]" />
-              <div className="mt-[10px] flex flex-col gap-[6px]">
-                <span className="text-[36px] leading-none">{b.big}</span>
-                <span className="w-[220px] text-[16px] leading-[1.3] text-[#555]">{b.small}</span>
-              </div>
+      {/* the two groups sit side by side; each owns its share of the bar, its headline number and its legend */}
+      <div className="mt-[50px] flex flex-col gap-[40px] md:flex-row md:gap-[10px]">
+        {groups.map((g, gi) => (
+          <div key={g.name} className="min-w-0" style={{ flexGrow: g.h, flexBasis: 0 }}>
+            {/* group headline */}
+            <div style={{ opacity: on ? 1 : 0, transition: `opacity 0.5s ease ${0.3 + gi * 0.5}s` }}>
+              <p className="text-[40px] md:text-[48px] leading-none font-bold tracking-[-0.02em]">{share(g.h)}%</p>
+              <p className="mt-[6px] text-[16px] md:text-[18px] leading-[1.3]">
+                {g.name} <span className="text-[#6b6b70]">· {g.h}h</span>
+              </p>
             </div>
-          ))}
-        </div>
-      </div>
-      <p className="mt-[30px] text-[16px] text-[#6b6b70]">Hours in a typical week. My own rough estimate, not tracked data.</p>
 
-      <p className="mt-[60px] text-[18px] md:text-[20px] leading-[1.6]">
+            {/* this group's part of the bar */}
+            <div
+              className="mt-[20px] flex h-[56px] gap-[2px] overflow-hidden rounded-[10px] md:!w-full"
+              // stacked on phones: each bar keeps its true share of the week, so 24% still looks like 24%
+              style={{ width: `${share(g.h)}%` }}
+            >
+              {g.items.map((w, i) => (
+                <div
+                  key={w.label}
+                  className="flex items-center justify-center text-[16px] md:text-[18px] font-bold"
+                  title={`${w.label}: ${w.h} hours`}
+                  style={{
+                    flexGrow: w.h,
+                    flexBasis: 0,
+                    background: w.bg,
+                    color: w.fg,
+                    transformOrigin: 'left',
+                    transform: on ? 'scaleX(1)' : 'scaleX(0)',
+                    transition: `transform 0.7s cubic-bezier(0.22,1,0.36,1) ${(gi * 3 + i) * 0.12}s`,
+                  }}
+                >
+                  {w.h}
+                </div>
+              ))}
+            </div>
+
+            {/* legend: colour, name, hours */}
+            <ul
+              className="mt-[20px] flex flex-col gap-[10px]"
+              style={{ opacity: on ? 1 : 0, transition: `opacity 0.5s ease ${0.8 + gi * 0.5}s` }}
+            >
+              {g.items.map((w) => (
+                <li key={w.label} className="flex items-center gap-[10px] text-[16px] leading-[1.3]">
+                  <span className="h-[14px] w-[14px] shrink-0 rounded-[3px] border border-black/15" style={{ background: w.bg }} aria-hidden />
+                  <span>{w.label}</span>
+                  <span className="text-[#6b6b70]">{w.h}h</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-[80px] text-[18px] md:text-[20px] leading-[1.6]">
         When I’m not designing, I swim and I draw. Drawing is where I started. Here are my drawings on{'\u00a0'}Instagram.
       </p>
     </div>
