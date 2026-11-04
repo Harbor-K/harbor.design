@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { NAV_ITEMS } from '../data/content';
 import { CV_URL, CV_LABEL } from '../data/links';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { useHideOnScroll } from '../hooks/useHideOnScroll';
 
 /**
  * Header after aave.com: a full-width bar with the "harbor" wordmark on the left and plain text links
@@ -14,6 +15,7 @@ import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
  * - It reads the page under it: over dark sections (the home intro, the About intro) it switches to a dark
  *   glass with white text and a white CV pill, over light sections it is light glass with a black CV pill.
  * - First load: the bar fades down and the links follow one by one.
+ * - Scrolling down tucks the bar up out of view; scrolling up (or moving the mouse to the top strip) brings it back.
  */
 const TRAY_DELAY = 0.1;
 const ITEM_DELAY = 0.2;
@@ -22,6 +24,7 @@ const ITEM_STAGGER = 0.06;
 export function FixedNav() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
+  const hidden = useHideOnScroll();
   const [scrolled, setScrolled] = useState(false);
   const [dark, setDark] = useState(false);
   const [hoverId, setHoverId] = useState<string | null>(null);
@@ -144,9 +147,14 @@ export function FixedNav() {
   const pillBg = dark ? 'rgba(255,255,255,0.10)' : 'rgba(10,10,10,0.06)';
 
   return (
-    <motion.header
+    // outer wrapper slides the bar up out of view while scrolling down, back down when scrolling up
+    // (or when the mouse comes up to the top strip); the inner header owns the first-load animation
+    <div
       data-site-header
       className="fixed inset-x-0 top-0 z-50"
+      style={{ transform: `translateY(${hidden ? '-100%' : '0'})`, transition: 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)', willChange: 'transform' }}
+    >
+    <motion.header
       initial={prefersReducedMotion ? false : { y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: TRAY_DELAY, ease: [0.22, 1, 0.36, 1] }}
@@ -222,5 +230,6 @@ export function FixedNav() {
         </div>
       </nav>
     </motion.header>
+    </div>
   );
 }
