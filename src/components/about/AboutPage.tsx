@@ -79,35 +79,97 @@ function useInView<T extends HTMLElement>(threshold = 0.25) {
   return [ref, on] as const;
 }
 
-function FilmPanel({ p, i }: { p: (typeof PANELS)[number]; i: number }) {
+function FilmPanel({ p, i, active, arrow }: { p: (typeof PANELS)[number]; i: number; active: boolean; arrow?: boolean }) {
   const [ref, on] = useInView<HTMLDivElement>(0.3);
   return (
     <div
       ref={ref}
+      data-film-panel={i}
       className="relative"
-      style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(40px)', transition: 'opacity 0.9s ease, transform 1.1s cubic-bezier(0.22,1,0.36,1)' }}
+      style={{
+        // the panel in focus is in colour; the rest go black-and-white and dim, like The Pudding's reel
+        // the next panel always peeks in, dimmed, so you can see there is more below
+        opacity: active ? 1 : 0.35,
+        transition: 'opacity 0.6s ease',
+      }}
     >
-      <div className="border-[2px] border-black bg-white px-[20px] py-[10px] text-[18px] md:text-[20px] leading-[1.35]">{p.cap}</div>
-      <div className="relative mt-[10px] aspect-[4/3] overflow-hidden border-[2px] border-black bg-black">
-        <img src={p.img} alt="" loading={i < 2 ? 'eager' : 'lazy'} className="h-full w-full object-cover grayscale" style={{ objectPosition: p.pos }} />
+      <div className="border-[2px] border-black bg-white px-[20px] py-[10px] text-[18px] md:text-[22px] leading-[1.35]">{p.cap}</div>
+      <div className="relative mt-[10px] overflow-hidden border-[2px] border-black bg-black" style={{ height: 'min(480px, 52vh)' }}>
+        <img
+          src={p.img}
+          alt=""
+          loading={i < 2 ? 'eager' : 'lazy'}
+          className="h-full w-full object-cover"
+          style={{ objectPosition: p.pos, filter: active ? 'none' : 'grayscale(1)', transition: 'filter 0.6s ease' }}
+        />
         <div
           className={`absolute top-[20px] max-w-[60%] rounded-[16px] border-[2px] border-black bg-white px-[14px] py-[10px] text-[16px] leading-[1.3] ${p.side === 'right' ? 'right-[20px]' : 'left-[20px]'}`}
           style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'scale(0.8)', transition: 'opacity 0.4s ease 0.6s, transform 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.6s' }}
         >
           {p.say}
         </div>
+        {/* "scroll down" arrow on the first panel; it goes once you start scrolling */}
+        {arrow !== undefined && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-[20px] left-1/2 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white text-black shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
+            style={{ animation: 'film-nudge 1.4s ease-in-out infinite', opacity: arrow ? 1 : 0, transition: 'opacity 0.4s ease' }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 4v15M5 12l7 7 7-7" />
+            </svg>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-/** the film reel: sprocket holes down both sides */
+/** the film reel: sprocket holes down both sides. The panel nearest the middle of the screen is the one in focus. */
 function FilmStrip() {
-  const holes = Array.from({ length: 60 });
+  const holes = Array.from({ length: 80 });
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const els = wrapRef.current?.querySelectorAll<HTMLElement>('[data-film-panel]');
+      if (!els) return;
+      const mid = window.innerHeight / 2;
+      let best = 0;
+      let bestD = Infinity;
+      els.forEach((el, k) => {
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - mid);
+        if (d < bestD) {
+          bestD = d;
+          best = k;
+        }
+      });
+      setActive(window.scrollY < 40 ? 0 : best);
+      setScrolled(window.scrollY > 40);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <div className="relative mx-auto w-full max-w-[560px] bg-[#111] px-[40px] md:px-[50px] py-[40px]">
+    <div ref={wrapRef} className="relative mx-auto w-full max-w-[760px] bg-[#111] px-[40px] md:px-[60px] py-[40px]">
+      <style>{`@keyframes film-nudge { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 10px); } }`}</style>
       {(['left', 'right'] as const).map((s) => (
-        <div key={s} className={`absolute top-0 bottom-0 ${s === 'left' ? 'left-[10px] md:left-[14px]' : 'right-[10px] md:right-[14px]'} flex flex-col gap-[20px] overflow-hidden py-[20px]`} aria-hidden>
+        <div key={s} className={`absolute top-0 bottom-0 ${s === 'left' ? 'left-[10px] md:left-[18px]' : 'right-[10px] md:right-[18px]'} flex flex-col gap-[20px] overflow-hidden py-[20px]`} aria-hidden>
           {holes.map((_, k) => (
             <span key={k} className="block h-[14px] w-[20px] shrink-0 rounded-[3px] border border-[#555] bg-[#2a2a2a]" />
           ))}
@@ -115,7 +177,7 @@ function FilmStrip() {
       ))}
       <div className="flex flex-col gap-[60px]">
         {PANELS.map((p, i) => (
-          <FilmPanel key={p.cap} p={p} i={i} />
+          <FilmPanel key={p.cap} p={p} i={i} active={i === active} arrow={i === 0 ? !scrolled : undefined} />
         ))}
       </div>
     </div>
