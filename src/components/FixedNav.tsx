@@ -28,6 +28,11 @@ export function FixedNav() {
   const hidden = useHideOnScroll();
 
   useEffect(() => {
+    // on the About page, About me stays lit
+    if (window.location.hash === '#/about') {
+      setActiveId('about');
+      return;
+    }
     const sections = NAV_ITEMS.map((item) => document.getElementById(item.id)).filter((el): el is HTMLElement => !!el);
     if (sections.length === 0) return;
 
@@ -46,11 +51,31 @@ export function FixedNav() {
     return () => observer.disconnect();
   }, []);
 
+  const onAboutPage = () => window.location.hash === '#/about';
+
+  // from the About page, home sections live on the home page: go home first, then scroll once it has rendered
+  const goHomeTo = (id?: string) => {
+    window.location.hash = id ? `#${id}` : '';
+    let tries = 0;
+    const tick = () => {
+      const el = id ? document.getElementById(id) : null;
+      if (!id) window.scrollTo(0, 0);
+      else if (el) el.scrollIntoView({ block: 'start' });
+      else if (tries++ < 40) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
   const handleClick = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
-    // About me opens its own page (#/about)
+    // About me opens its own page (#/about); on that page it takes you back to its top
     if (id === 'about') {
-      window.location.hash = '#/about';
+      if (onAboutPage()) window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+      else window.location.hash = '#/about';
+      return;
+    }
+    if (onAboutPage()) {
+      goHomeTo(id);
       return;
     }
     const el = document.getElementById(id);
@@ -58,7 +83,7 @@ export function FixedNav() {
     el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
   };
 
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  const scrollTop = () => (onAboutPage() ? goHomeTo() : window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' }));
 
   // each button drops a little from above, in sequence
   const itemMotion = (i: number) =>
