@@ -22,7 +22,7 @@ const YELLOW = '#FFE600';
 const PANELS = [
   { cap: 'I started in Fine Art, drawing what I saw.', say: 'What makes people look twice?', img: '/assets/about/film-fineart.jpg', pos: '50% 45%', side: 'right' },
   { cap: 'Then I lived and worked in Korea, Australia and the UK.', say: 'Same app, three ways to read it.', img: '/assets/about/film-places.jpg', pos: '50% 50%', side: 'left' },
-  { cap: 'Now I design fintech products, end to end.', say: 'Is the v2 flow ready for handoff?', img: '/assets/trust-bank/workshop-1.jpg', pos: '50% 50%', side: 'right' },
+  { cap: 'Now I design fintech products, end to end.', say: 'Is the v2 flow ready for handoff?', img: '/assets/about/film-fintech.jpg', pos: '50% 40%', side: 'right' },
   { cap: 'I test everything with real people.', say: 'Where do I check my points?', img: '/assets/trust-bank/ut-session.png', pos: '50% 50%', side: 'left' },
   { cap: 'And I take long walks to think.', say: 'Butter helps me focus. I swear.', img: '/assets/trust-bank/takeaway.jpg', pos: '55% 40%', side: 'right' },
 ] as const;
