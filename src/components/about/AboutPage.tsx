@@ -303,35 +303,128 @@ function WeekChart() {
   );
 }
 
-/** Harbor's drawings from her Instagram, scrolling sideways on their own; hovering pauses it */
-const POSTS = ['DL8Xf9CIVmL', 'DEvWIXFoz0f', 'C7-O3sXosWj', 'CkSEAHtpCDa', 'CkPVaFvPPpm', 'CkMpzZSPL_E', 'CkKdm6GJbTa', 'CkFb7jIJK1b', 'CkCiPopJu_l', 'Cg9RKoFphgr'];
-const DRAWINGS = POSTS.map((id, i) => ({ src: `/assets/about/drawing-${i + 1}.jpg`, href: `https://www.instagram.com/p/${id}/` }));
+/**
+ * Harbor's drawings from her Instagram, scrolling sideways on their own.
+ * Hover pauses it; you can also drag or swipe (and trackpad-scroll) it sideways yourself.
+ * Both ends fade out. Red pandas: only her two most-liked posts (132 and 66 likes when added).
+ */
+const DRAWINGS = [
+  { file: 8, post: 'CkFb7jIJK1b' }, // red panda, "Are you uncomfortable? No, just hold me."
+  { file: 1, post: 'DL8Xf9CIVmL' },
+  { file: 2, post: 'DEvWIXFoz0f' },
+  { file: 9, post: 'CkCiPopJu_l' }, // red panda, "Keep in touch"
+  { file: 3, post: 'C7-O3sXosWj' },
+  { file: 10, post: 'Cg9RKoFphgr' },
+].map((d) => ({ src: `/assets/about/drawing-${d.file}.jpg`, href: `https://www.instagram.com/p/${d.post}/` }));
+
+const STRIP_SPEED = 40; // px per second
 
 function InstagramEmbed() {
-  const loop = [...DRAWINGS, ...DRAWINGS]; // two copies so the strip loops without a seam
+  const loop = [...DRAWINGS, ...DRAWINGS, ...DRAWINGS]; // three copies so it can loop either way without a seam
+  const ref = useRef<HTMLDivElement>(null);
+  const hover = useRef(false);
+  const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // start on the middle copy
+    const third = () => el.scrollWidth / 3;
+    el.scrollLeft = third();
+    let raf = 0;
+    let last = performance.now();
+    let pos = el.scrollLeft;
+    const tick = (now: number) => {
+      const dt = Math.min(64, now - last);
+      last = now;
+      if (!hover.current && !drag.current && !reduce) {
+        pos += (STRIP_SPEED * dt) / 1000;
+        el.scrollLeft = pos;
+      } else {
+        pos = el.scrollLeft;
+      }
+      // keep it on the middle copy so it never runs out
+      const t = third();
+      if (el.scrollLeft >= t * 2) {
+        el.scrollLeft -= t;
+        pos = el.scrollLeft;
+      } else if (el.scrollLeft < t * 0.5) {
+        el.scrollLeft += t;
+        pos = el.scrollLeft;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return; // touch swipes scroll natively
+    const el = ref.current;
+    if (!el) return;
+    drag.current = { x: e.clientX, left: el.scrollLeft, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = drag.current;
+    const el = ref.current;
+    if (!d || !el) return;
+    const dx = e.clientX - d.x;
+    if (Math.abs(dx) > 4) d.moved = true;
+    el.scrollLeft = d.left - dx;
+  };
+  const endDrag = () => {
+    window.setTimeout(() => (drag.current = null), 0);
+  };
+
   return (
     <div className="mt-[40px]">
-      <style>{`
-        @keyframes ig-strip { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-        .ig-strip { animation: ig-strip 60s linear infinite; }
-        .ig-strip-wrap:hover .ig-strip { animation-play-state: paused; }
-        @media (prefers-reduced-motion: reduce) { .ig-strip { animation: none; } }
-      `}</style>
-      <div className="ig-strip-wrap w-full overflow-hidden">
-        <div className="ig-strip flex w-max gap-[20px]">
-          {loop.map((d, i) => (
-            <a
-              key={i}
-              href={d.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-hidden={i >= DRAWINGS.length ? true : undefined}
-              tabIndex={i >= DRAWINGS.length ? -1 : undefined}
-              className="block shrink-0 overflow-hidden rounded-[20px] bg-white transition-transform duration-300 hover:-translate-y-[6px]"
-            >
-              <img src={d.src} alt={i < DRAWINGS.length ? `Drawing ${i + 1} on Harbor's Instagram` : ''} loading="lazy" className="block h-[300px] w-[300px] object-cover" />
-            </a>
-          ))}
+      <style>{`.ig-strip::-webkit-scrollbar { display: none; }`}</style>
+      <div
+        ref={ref}
+        className="ig-strip w-full overflow-x-auto select-none cursor-grab active:cursor-grabbing"
+        style={{
+          scrollbarWidth: 'none',
+          WebkitMaskImage: 'linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%)',
+          maskImage: 'linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%)',
+        }}
+        onMouseEnter={() => (hover.current = true)}
+        onMouseLeave={() => {
+          hover.current = false;
+          endDrag();
+        }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onTouchStart={() => (hover.current = true)}
+        onTouchEnd={() => window.setTimeout(() => (hover.current = false), 1500)}
+      >
+        <div className="flex w-max gap-[20px] py-[10px]">
+          {loop.map((d, i) => {
+            const copy = i < DRAWINGS.length || i >= DRAWINGS.length * 2;
+            return (
+              <a
+                key={i}
+                href={d.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                draggable={false}
+                aria-hidden={copy ? true : undefined}
+                tabIndex={copy ? -1 : undefined}
+                onClick={(e) => {
+                  if (drag.current?.moved) e.preventDefault(); // a drag isn't a click
+                }}
+                className="block shrink-0 overflow-hidden rounded-[20px] bg-white transition-transform duration-300 hover:-translate-y-[6px]"
+              >
+                <img
+                  src={d.src}
+                  alt={copy ? '' : `Drawing ${(i % DRAWINGS.length) + 1} on Harbor's Instagram`}
+                  draggable={false}
+                  className="pointer-events-none block h-[300px] w-[300px] object-cover"
+                />
+              </a>
+            );
+          })}
         </div>
       </div>
       <div className="mx-auto max-w-[800px] px-6">
