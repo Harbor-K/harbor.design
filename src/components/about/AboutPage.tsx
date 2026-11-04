@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { INSTAGRAM_URL, BOOK_CALL_URL } from '../../data/content';
 import { FixedNav } from '../FixedNav';
+import { Contact } from '../sections/Contact';
 
 /**
  * About page (#/about), built after The Pudding's "How accurately are Asian Americans cast in Hollywood?":
@@ -322,8 +323,15 @@ function CalEmbed() {
     <div className="mx-auto max-w-[1000px] px-6">
       <h2 className="text-[26px] md:text-[30px] leading-[1.2] font-bold">Want to talk? Book a call with me</h2>
       <p className="mt-[16px] text-[18px] leading-[1.6] text-[#333]">Pick a time for a 30-minute chat.</p>
-      <div className="mt-[30px] overflow-hidden rounded-[20px] border border-[#d9d9d6] bg-white">
-        <iframe title="Book a 30-minute call with Harbor" src={`${BOOK_CALL_URL}?embed=true&layout=month_view&theme=light`} className="block h-[760px] w-full" loading="lazy" />
+      {/* Cal's page has ~100px of empty space above the booker and its branding below:
+          on desktop the frame is cropped to just the booker (top -100px, 480px tall) */}
+      <div className="mt-[30px] overflow-hidden rounded-[20px] border border-[#d9d9d6] bg-white md:h-[480px]">
+        <iframe
+          title="Book a 30-minute call with Harbor"
+          src={`${BOOK_CALL_URL}?embed=true&layout=month_view&theme=light`}
+          className="block h-[760px] w-full md:-mt-[101px]"
+          loading="lazy"
+        />
       </div>
     </div>
   );
@@ -376,9 +384,12 @@ export function AboutPage(_props: { onClose?: () => void }) {
       </section>
 
       {/* 6 · book a call */}
-      <section className="bg-white pt-[120px] pb-[160px]">
+      <section className="bg-white pt-[120px] pb-[120px]">
         <CalEmbed />
       </section>
+
+      {/* 7 · main site footer */}
+      <Contact />
     </div>
   );
 }
