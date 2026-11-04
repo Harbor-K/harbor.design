@@ -317,22 +317,72 @@ function InstagramEmbed() {
   );
 }
 
-/** Cal.com booking, embedded open on the page */
+/** Cal.com booking, embedded open on the page with Cal's own inline embed (sizes itself to the calendar, no empty bands) */
+declare global {
+  interface Window {
+    Cal?: any;
+  }
+}
+
+function loadCal() {
+  const w = window as any;
+  if (w.Cal) return;
+  // Cal.com's official inline-embed loader
+  (function (C: any, A: string, L: string) {
+    const p = function (a: any, ar: any) {
+      a.q.push(ar);
+    };
+    const d = C.document;
+    C.Cal =
+      C.Cal ||
+      function (...args: any[]) {
+        const cal = C.Cal;
+        const ar = args;
+        if (!cal.loaded) {
+          cal.ns = {};
+          cal.q = cal.q || [];
+          d.head.appendChild(d.createElement('script')).src = A;
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api: any = function (...a2: any[]) {
+            p(api, a2);
+          };
+          const namespace = ar[1];
+          api.q = api.q || [];
+          if (typeof namespace === 'string') {
+            cal.ns[namespace] = cal.ns[namespace] || api;
+            p(cal.ns[namespace], ar);
+            p(cal, ['initNamespace', namespace]);
+          } else p(cal, ar);
+          return;
+        }
+        p(cal, ar);
+      };
+  })(window, 'https://app.cal.com/embed/embed.js', 'init');
+}
+
 function CalEmbed() {
+  useEffect(() => {
+    loadCal();
+    const Cal = (window as any).Cal;
+    Cal('init', '30min', { origin: 'https://cal.com' });
+    Cal.ns['30min']('inline', {
+      elementOrSelector: '#harbor-cal-inline',
+      config: { layout: 'month_view', theme: 'light' },
+      calLink: BOOK_CALL_URL.replace('https://cal.com/', ''),
+    });
+    Cal.ns['30min']('ui', { hideEventTypeDetails: false, layout: 'month_view', theme: 'light' });
+  }, []);
+
   return (
     <div className="mx-auto max-w-[1000px] px-6">
       <h2 className="text-[26px] md:text-[30px] leading-[1.2] font-bold">Want to talk? Book a call with me</h2>
       <p className="mt-[16px] text-[18px] leading-[1.6] text-[#333]">Pick a time for a 30-minute chat.</p>
-      {/* Cal's page has ~100px of empty space above the booker and its branding below:
-          on desktop the frame is cropped to just the booker (top -100px, 480px tall) */}
-      <div className="mt-[30px] overflow-hidden rounded-[20px] border border-[#d9d9d6] bg-white md:h-[480px]">
-        <iframe
-          title="Book a 30-minute call with Harbor"
-          src={`${BOOK_CALL_URL}?embed=true&layout=month_view&theme=light`}
-          className="block h-[760px] w-full md:-mt-[101px]"
-          loading="lazy"
-        />
-      </div>
+      <div id="harbor-cal-inline" className="mt-[30px] w-full overflow-hidden rounded-[20px]" style={{ minHeight: 480 }} />
+      <a href={BOOK_CALL_URL} target="_blank" rel="noopener noreferrer" className="mt-[20px] inline-block text-[16px] underline underline-offset-4">
+        Open the booking page
+      </a>
     </div>
   );
 }
