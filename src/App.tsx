@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FixedNav } from './components/FixedNav';
-import { RolesHero } from './components/sections/RolesHero';
+import { IntroHero } from './components/sections/IntroHero';
 import { Work } from './components/sections/Work';
 import { Experience } from './components/sections/Experience';
 import { WhatIDo } from './components/sections/WhatIDo';
@@ -19,7 +19,7 @@ function readRoute() {
   return CASE_ROUTES.includes(window.location.hash) ? window.location.hash : '';
 }
 
-// Not rendered: Manifesto (hero opens straight into the video) and ToolsDomains (removed at Harbor's request).
+// Not rendered: Manifesto, ToolsDomains and RolesHero (the role circles + video opening, replaced by IntroHero at Harbor's request).
 export function App() {
   const [route, setRoute] = useState(readRoute);
 
@@ -70,7 +70,7 @@ export function App() {
           <FixedNav />
 
           <main className="relative z-10">
-            <RolesHero />
+            <IntroHero />
             <Work />
             <Experience />
             <WhatIDo />
