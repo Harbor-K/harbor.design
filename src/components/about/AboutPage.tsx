@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { INSTAGRAM_URL } from '../../data/content';
 
 /**
  * About page (#/about), built after The Pudding's "How accurately are Asian Americans cast in Hollywood?":
@@ -24,30 +25,51 @@ const PANELS = [
   { cap: 'And I take long walks to think.', say: 'Butter helps me focus. I swear.', img: '/assets/trust-bank/takeaway.jpg', pos: '55% 40%', side: 'right' },
 ] as const;
 
-const CO = {
-  pinetree: { name: 'Pinetree', img: '/assets/main-v2/pinetree.webp' },
-  eto: { name: 'ETO Markets', img: '/assets/main-v2/eto-markets-logo.jpg' },
-  utrada: { name: 'UTrada', img: '/assets/main-v2/utrada-logo.jpg' },
-  trust: { name: 'Trust Bank', img: '/assets/main-v2/trust-bank.webp' },
-  gamecove: { name: 'GameCove', img: '/assets/main-v2/gamecove.webp' },
-} as const;
-type Co = keyof typeof CO;
+/**
+ * Career timeline, from Harbor's LinkedIn experience.
+ * In each row, the year someone started is shown with the company logo (or a name tile when there is no logo yet);
+ * the later years show project images. Grey "Image" tiles are temporary placeholders until real project images arrive.
+ */
+type Group = 'art' | 'pinetree' | 'eto' | 'upwork' | 'utrada' | 'study';
+type Tile = { g: Group; kind: 'logo' | 'img' | 'ph' | 'name'; src?: string; label: string };
 
-// one tile per company per year it was part of
-const YEARS: { y: string; tiles: Co[] }[] = [
-  { y: '2021', tiles: ['pinetree'] },
-  { y: '2022', tiles: ['pinetree', 'eto'] },
-  { y: '2023', tiles: ['eto'] },
-  { y: '2024', tiles: ['utrada'] },
-  { y: '2025', tiles: ['utrada'] },
-  { y: '2026', tiles: ['utrada', 'trust', 'gamecove'] },
+const T = {
+  artName: { g: 'art', kind: 'name', label: 'Art' } as Tile,
+  artPh: { g: 'art', kind: 'ph', label: 'Fine Arts tutoring' } as Tile,
+  pinetreeLogo: { g: 'pinetree', kind: 'logo', src: '/assets/main-v2/pinetree.webp', label: 'Pinetree' } as Tile,
+  pinetreeSite: { g: 'pinetree', kind: 'ph', label: 'Pinetree Company website' } as Tile,
+  etoLogo: { g: 'eto', kind: 'logo', src: '/assets/main-v2/eto-markets-logo.jpg', label: 'ETO Markets' } as Tile,
+  etoCrm: { g: 'eto', kind: 'img', src: '/assets/main-v2/eto-markets-v2.jpg', label: 'ETO Markets CRM' } as Tile,
+  upworkName: { g: 'upwork', kind: 'name', label: 'Upwork' } as Tile,
+  upworkPh: { g: 'upwork', kind: 'ph', label: 'Freelance project' } as Tile,
+  utradaLogo: { g: 'utrada', kind: 'logo', src: '/assets/main-v2/utrada-logo.jpg', label: 'UTrada' } as Tile,
+  utradaSite: { g: 'utrada', kind: 'img', src: '/assets/main-v2/utrada-v2.jpg', label: 'UTrada website' } as Tile,
+  trust: { g: 'study', kind: 'img', src: '/assets/main-v2/trust-bank.webp', label: 'Trust Bank' } as Tile,
+  gamecove: { g: 'study', kind: 'img', src: '/assets/main-v2/gamecove.webp', label: 'GameCove' } as Tile,
+};
+
+const YEARS: { y: string; tiles: Tile[] }[] = [
+  { y: '2015', tiles: [T.artName] },
+  { y: '2016', tiles: [T.artPh] },
+  { y: '2017', tiles: [T.artPh] },
+  { y: '2018', tiles: [T.artPh] },
+  { y: '2019', tiles: [] },
+  { y: '2020', tiles: [] },
+  { y: '2021', tiles: [T.pinetreeLogo] },
+  { y: '2022', tiles: [T.pinetreeSite, T.etoLogo] },
+  { y: '2023', tiles: [T.etoCrm, T.upworkName] },
+  { y: '2024', tiles: [T.upworkPh, T.utradaLogo] },
+  { y: '2025', tiles: [T.upworkPh, T.utradaSite] },
+  { y: '2026', tiles: [T.utradaSite, T.trust, T.gamecove] },
 ];
 
-const STEPS: { years: string; title: string; text: string; lit: Co[] }[] = [
-  { years: '2021–2022', title: 'Pinetree', text: 'Redesigned the information architecture and landing pages for an e-learning platform.', lit: ['pinetree'] },
-  { years: '2022–2023', title: 'ETO Markets', text: 'Took a trading platform to 9 languages. 30% more users from Asia and Europe.', lit: ['eto'] },
-  { years: '2024–2026', title: 'UTrada', text: 'Built a 100+ component design system. Dev cycles got 40% faster.', lit: ['utrada'] },
-  { years: '2026', title: 'Trust Bank · GameCove', text: 'Rewards UX revamp and an AI analytics dashboard, each with one teammate.', lit: ['trust', 'gamecove'] },
+const STEPS: { years: string; title: string; text: string; lit: Group[] }[] = [
+  { years: '2015–2018', title: 'Art tutor', text: 'Taught Fine Arts at the Morning of Creation Academy in Jeju.', lit: ['art'] },
+  { years: '2021–2022', title: 'Pinetree', text: 'Redesigned the website and its information architecture, and optimised the landing page.', lit: ['pinetree'] },
+  { years: '2022–2023', title: 'ETO Markets', text: 'Redesigned the CRM, website and apps in Sydney, and added support for 9 languages.', lit: ['eto'] },
+  { years: '2023–2025', title: 'Freelance on Upwork', text: 'Designed a website for an education agency and looked after a design system.', lit: ['upwork'] },
+  { years: '2024–2026', title: 'UTrada', text: 'Designed the website and apps for a global trading platform, from research to UI.', lit: ['utrada'] },
+  { years: '2026', title: 'Trust Bank · GameCove', text: 'A UX and AI product design programme: a rewards UX revamp and an AI analytics dashboard.', lit: ['study'] },
 ];
 
 /** fades + slides a panel in when it enters the screen */
@@ -111,17 +133,38 @@ function Timeline() {
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(-1);
 
+  // the step box closest to the middle of the screen is the active one, so text and tiles always match
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.i));
-        });
-      },
-      { rootMargin: '-45% 0px -45% 0px' },
-    );
-    stepRefs.current.forEach((el) => el && io.observe(el));
-    return () => io.disconnect();
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const mid = window.innerHeight / 2;
+      let best = -1;
+      let bestD = Infinity;
+      stepRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const box = el.firstElementChild as HTMLElement | null;
+        const r = (box ?? el).getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) return;
+        const d = Math.abs(r.top + r.height / 2 - mid);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      });
+      setActive(best);
+    };
+    const on = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener('scroll', on, { passive: true });
+    window.addEventListener('resize', on);
+    return () => {
+      window.removeEventListener('scroll', on);
+      window.removeEventListener('resize', on);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   const lit = active >= 0 ? STEPS[active].lit : [];
@@ -157,23 +200,27 @@ function Timeline() {
             <div key={row.y} className="flex items-center gap-[20px]">
               <span className="w-[50px] shrink-0 text-[16px] tabular-nums text-[#6b6b70]">{row.y}</span>
               <div className="flex gap-[6px]">
-                {row.tiles.map((c) => {
-                  const on = lit.includes(c);
+                {row.tiles.map((t, k) => {
+                  const on = lit.includes(t.g);
+                  const style: React.CSSProperties = {
+                    filter: on ? 'none' : 'grayscale(1)',
+                    opacity: active < 0 || on ? 1 : 0.35,
+                    outline: on ? `3px solid ${YELLOW}` : '1px solid rgba(0,0,0,0.15)',
+                    outlineOffset: on ? 2 : 0,
+                    transform: on ? 'scale(1.06)' : 'none',
+                  };
+                  const cls = 'h-[60px] w-[60px] shrink-0 transition-all duration-300';
+                  if (t.kind === 'logo' || t.kind === 'img')
+                    return <img key={k} src={t.src} alt={t.label} title={t.label} className={`${cls} object-cover`} style={style} />;
                   return (
-                    <img
-                      key={c}
-                      src={CO[c].img}
-                      alt={CO[c].name}
-                      title={CO[c].name}
-                      className="h-[60px] w-[60px] object-cover transition-all duration-300"
-                      style={{
-                        filter: on ? 'none' : 'grayscale(1)',
-                        opacity: active < 0 || on ? 1 : 0.35,
-                        outline: on ? `3px solid ${YELLOW}` : '1px solid rgba(0,0,0,0.15)',
-                        outlineOffset: on ? 2 : 0,
-                        transform: on ? 'scale(1.06)' : 'none',
-                      }}
-                    />
+                    <span
+                      key={k}
+                      title={t.label}
+                      className={`${cls} flex items-center justify-center text-center text-[16px] leading-none ${t.kind === 'name' ? 'bg-black font-medium tracking-[-0.02em] text-white' : 'bg-[#cfcfcf] text-[#6b6b70]'}`}
+                      style={style}
+                    >
+                      {t.kind === 'name' ? t.label : 'Image'}
+                    </span>
                   );
                 })}
               </div>
@@ -181,6 +228,40 @@ function Timeline() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** closing chart, after the reference's labelled stacked bar: what Harbor does off the clock */
+function Hobbies() {
+  const parts = [
+    { label: 'Swimming', bg: INK, fg: '#FFFFFF' },
+    { label: 'Drawing', bg: '#9a9a9f', fg: '#FFFFFF' },
+  ];
+  return (
+    <div className="mx-auto max-w-[680px] px-6">
+      <h2 className="text-[26px] md:text-[30px] leading-[1.2] font-bold">Off the clock</h2>
+      <div className="mt-[40px] flex">
+        {parts.map((p) => (
+          <div key={p.label} className="flex-1">
+            <span className="mx-auto mb-[10px] block w-fit rounded-[6px] bg-[#d9d9d6] px-[10px] py-[4px] text-[16px]">{p.label}</span>
+            <div className="flex h-[50px] items-center justify-center text-[18px] font-bold" style={{ background: p.bg, color: p.fg }}>
+              {p.label === 'Swimming' ? 'In the water' : 'On paper'}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-[30px] text-[18px] md:text-[20px] leading-[1.6]">
+        When I’m not designing, I swim and I draw. Drawing is where I started. You can see my drawings on{'\u00a0'}Instagram.
+      </p>
+      <a
+        href={INSTAGRAM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-[30px] inline-flex items-center gap-[10px] rounded-lg bg-black px-[20px] py-[12px] text-[17px] font-medium text-white transition-opacity hover:opacity-85"
+      >
+        See my drawings @harbor_0328
+      </a>
     </div>
   );
 }
@@ -225,8 +306,13 @@ export function AboutPage({ onClose }: { onClose: () => void }) {
       </section>
 
       {/* 4 · scrollytelling timeline */}
-      <section style={{ background: PAPER }} className="pb-[120px]">
+      <section style={{ background: PAPER }} className="pb-[60px]">
         <Timeline />
+      </section>
+
+      {/* 5 · hobbies + Instagram */}
+      <section style={{ background: PAPER }} className="pb-[160px]">
+        <Hobbies />
       </section>
     </div>
   );
