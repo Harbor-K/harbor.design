@@ -48,6 +48,11 @@ export function FixedNav() {
 
   const handleClick = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    // About me opens its own page (#/about)
+    if (id === 'about') {
+      window.location.hash = '#/about';
+      return;
+    }
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
@@ -90,7 +95,7 @@ export function FixedNav() {
           return (
             <motion.a
               key={item.id}
-              href={`#${item.id}`}
+              href={item.id === 'about' ? '#/about' : `#${item.id}`}
               onClick={handleClick(item.id)}
               className="flex items-center rounded-lg px-4 py-2.5 md:px-5 md:py-3 text-[15px] md:text-[17px] font-medium tracking-tight whitespace-nowrap transition-colors duration-200 ease-out"
               style={{

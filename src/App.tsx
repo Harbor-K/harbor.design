@@ -10,8 +10,9 @@ import { PlaceholderCase } from './components/case/PlaceholderCase';
 import { CaseReveal } from './components/case/CaseReveal';
 import { ImageLightbox } from './components/case/ImageLightbox';
 import { CursorTrail } from './components/CursorTrail';
+import { AboutPage } from './components/about/AboutPage';
 
-const CASE_ROUTES = ['#/trust-bank', '#/gamecove', '#/utrada'];
+const CASE_ROUTES = ['#/trust-bank', '#/gamecove', '#/utrada', '#/about'];
 
 function readRoute() {
   if (typeof window === 'undefined') return '';
@@ -35,12 +36,21 @@ export function App() {
     requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById('work')?.scrollIntoView({ block: 'start' })));
   }, []);
 
+  // closing About returns to the top of the home page
+  const closeAbout = useCallback(() => {
+    window.location.hash = '';
+    setRoute('');
+    requestAnimationFrame(() => window.scrollTo(0, 0));
+  }, []);
+
   return (
     <>
       {/* dot-trail cursor on every page */}
       <CursorTrail />
 
-      {route ? (
+      {route === '#/about' ? (
+        <AboutPage onClose={closeAbout} />
+      ) : route ? (
         // case-grid: same faint grid background as the home page; CaseReveal: gentle fade-up on scroll;
         // ImageLightbox: hover-zoom and click-to-enlarge for images. key=route so each case starts fresh.
         <div className="case-grid" key={route}>
