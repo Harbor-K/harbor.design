@@ -295,7 +295,7 @@ const WEEK = [
   { label: 'Designing', h: 38, bg: INK, fg: '#FFFFFF' },
   { label: 'Research & testing', h: 8, bg: '#3d3d40', fg: '#FFFFFF' },
   { label: 'Learning AI tools', h: 10, bg: '#6b6b70', fg: '#FFFFFF' },
-  { label: 'Swimming', h: 5, bg: YELLOW, fg: INK },
+  { label: 'Movies & dramas', h: 5, bg: YELLOW, fg: INK },
   { label: 'Drawing', h: 6, bg: '#FFF27A', fg: INK },
   { label: 'Walks', h: 7, bg: '#FFF9C4', fg: INK },
 ];
@@ -372,7 +372,7 @@ function WeekChart() {
       </div>
 
       <p className="mt-[80px] text-[18px] md:text-[20px] leading-[1.6]">
-        When I’m not designing, I swim and I draw. Drawing is where I started. Here are my drawings on{'\u00a0'}Instagram.
+        When I’m not designing, I watch movies and dramas, and I draw. Drawing is where I started. Here are my drawings on{'\u00a0'}Instagram.
       </p>
     </div>
   );
