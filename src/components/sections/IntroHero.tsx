@@ -267,17 +267,20 @@ export function IntroHero() {
           background: linear-gradient(100deg, #FFFFFF 0%, #FFFFFF 35%, ${YELLOW} 50%, #FFFFFF 65%, #FFFFFF 100%);
           background-size: 250% 100%;
           -webkit-background-clip: text; background-clip: text; color: transparent;
+          /* room for g / y descenders, otherwise the clipped background cuts them off */
+          padding-bottom: 0.14em; margin-bottom: -0.14em;
           animation: intro-sheen 6s ease-in-out 1.2s infinite;
         }
         @keyframes intro-sheen { 0% { background-position: 100% 0; } 60%, 100% { background-position: 0% 0; } }
         .intro-pill-arrow { transition: transform .25s ease; }
         a:hover > .intro-pill-arrow { transform: translateX(3px); }
+        .intro-pill-arrow { display: block; flex-shrink: 0; }
         @media (prefers-reduced-motion: reduce) { .intro-sheen { animation: none; } }
       `}</style>
 
       {/* 1 · intro */}
       <section className="relative flex flex-col items-center px-6 pt-[160px] md:pt-[200px] pb-[80px] text-center text-white">
-        <h1 className="max-w-[1100px] text-[44px] sm:text-[60px] md:text-[80px] leading-[1.04] font-medium tracking-[-0.03em]" style={{ textWrap: 'balance' } as React.CSSProperties}>
+        <h1 className="max-w-[1100px] text-[44px] sm:text-[60px] md:text-[80px] leading-[1.1] font-medium tracking-[-0.015em]" style={{ textWrap: 'balance' } as React.CSSProperties}>
           <HeadlineWords text="I observe objectively to" delay={0.1} />
           <HeadlineWords text="design clearly." delay={0.45} sheen />
         </h1>
@@ -292,10 +295,10 @@ export function IntroHero() {
           style={{ opacity: loaded ? 1 : 0, transform: loaded ? 'none' : 'translateY(12px)', transition: 'opacity 0.9s ease 1s, transform 1s cubic-bezier(0.22,1,0.36,1) 1s' }}
         >
           <a href="#work" className="inline-flex items-center gap-[8px] rounded-full bg-white px-[22px] py-[12px] text-[17px] font-medium text-black transition-colors duration-200 hover:bg-[#FFE600]">
-            View projects <span className="intro-pill-arrow" aria-hidden>→</span>
+            View projects <svg className="intro-pill-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </a>
           <a href="#/about" className="inline-flex items-center gap-[8px] rounded-full border border-white/30 px-[22px] py-[12px] text-[17px] font-medium text-white transition-colors duration-200 hover:border-white hover:bg-white/10">
-            About me <span className="intro-pill-arrow" aria-hidden>→</span>
+            About me <svg className="intro-pill-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </a>
         </div>
       </section>
