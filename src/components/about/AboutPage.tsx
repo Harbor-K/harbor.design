@@ -20,11 +20,23 @@ const PAPER = '#ECEBE8';
 const YELLOW = '#FFE600';
 
 const PANELS = [
-  { cap: 'I started in Fine Art, drawing what I saw.', say: 'What makes people look twice?', img: '/assets/about/film-fineart.jpg', pos: '50% 45%', side: 'right' },
-  { cap: 'Then I lived and worked in Korea, Australia and the UK.', say: 'Same app, three ways to read it.', img: '/assets/about/film-places.jpg', pos: '50% 50%', side: 'left' },
-  { cap: 'Now I design fintech products, end to end.', say: 'Is the v2 flow ready for handoff?', img: '/assets/about/film-fintech.jpg', pos: '50% 40%', side: 'right' },
-  { cap: 'I test everything with real people.', say: 'Where do I check my points?', img: '/assets/trust-bank/ut-session.png', pos: '50% 50%', side: 'left' },
-  { cap: 'And I take long walks to think.', say: 'Butter helps me focus. I swear.', img: '/assets/trust-bank/takeaway.jpg', pos: '55% 40%', side: 'right' },
+  { word: 'Artist', cap: 'I started in Fine Art, drawing what I saw.', img: '/assets/about/film-fineart.jpg', pos: '50% 45%' },
+  { word: 'Places', cap: 'Then I lived and worked in Korea, Australia and the UK.', img: '/assets/about/film-places.jpg', pos: '50% 50%' },
+  { word: 'Work', cap: 'Now I design fintech products, end to end.', img: '/assets/about/film-fintech.jpg', pos: '50% 40%' },
+  { word: 'Testing', cap: 'I test everything with real people.', img: '/assets/trust-bank/ut-session.png', pos: '50% 50%' },
+  { word: 'Walks', cap: 'And I take long walks to think.', img: '/assets/trust-bank/takeaway.jpg', pos: '55% 40%' },
+] as const;
+
+/** smaller photos scattered around the cards; each drifts at its own speed (x/w in % of the screen, y in px along the track) */
+const SCATTER = [
+  { src: '/assets/main-v2/about-photo.webp', x: 27.5, y: 120, w: 9, speed: 0.75 },
+  { src: '/assets/main-v2/desk-coin-poster.jpg', x: 68, y: 40, w: 10, speed: 1.25 },
+  { src: '/assets/about/drawing-8.jpg', x: 71, y: 620, w: 9, speed: 0.9 },
+  { src: '/assets/trust-bank/workshop-2.jpg', x: 27, y: 760, w: 9.5, speed: 1.15 },
+  { src: '/assets/trust-bank/define-photo.jpg', x: 69, y: 1180, w: 12, speed: 0.8 },
+  { src: '/assets/portrait/harbor-portrait-bw.webp', x: 28.5, y: 1420, w: 7, speed: 1.3 },
+  { src: '/assets/trust-bank/sketch-photo.png', x: 70, y: 1820, w: 11, speed: 1.05 },
+  { src: '/assets/about/drawing-9.jpg', x: 27.5, y: 2050, w: 8, speed: 0.85 },
 ] as const;
 
 /**
@@ -79,106 +91,136 @@ function useInView<T extends HTMLElement>(threshold = 0.25) {
   return [ref, on] as const;
 }
 
-function FilmPanel({ p, i, active, arrow }: { p: (typeof PANELS)[number]; i: number; active: boolean; arrow?: boolean }) {
-  const [ref, on] = useInView<HTMLDivElement>(0.3);
-  return (
-    <div
-      ref={ref}
-      data-film-panel={i}
-      className="relative"
-      style={{
-        // the panel in focus is in colour; the rest go black-and-white and dim, like The Pudding's reel
-        // the next panel always peeks in, dimmed, so you can see there is more below
-        opacity: active ? 1 : 0.35,
-        transition: 'opacity 0.6s ease',
-      }}
-    >
-      <div className="border-[2px] border-black bg-white px-[20px] py-[10px] text-[18px] md:text-[22px] leading-[1.35]">{p.cap}</div>
-      <div className="relative mt-[10px] overflow-hidden border-[2px] border-black bg-black" style={{ height: 'min(480px, 52vh)' }}>
-        <img
-          src={p.img}
-          alt=""
-          loading={i < 2 ? 'eager' : 'lazy'}
-          className="h-full w-full object-cover"
-          style={{ objectPosition: p.pos, filter: active ? 'none' : 'grayscale(1)', transition: 'filter 0.6s ease' }}
-        />
-        <div
-          className={`absolute top-[20px] max-w-[60%] rounded-[16px] border-[2px] border-black bg-white px-[14px] py-[10px] text-[16px] leading-[1.3] ${p.side === 'right' ? 'right-[20px]' : 'left-[20px]'}`}
-          style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'scale(0.8)', transition: 'opacity 0.4s ease 0.6s, transform 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.6s' }}
-        >
-          {p.say}
-        </div>
-        {/* "scroll down" arrow on the first panel; it goes once you start scrolling */}
-        {arrow !== undefined && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute bottom-[20px] left-1/2 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white text-black shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
-            style={{ animation: 'film-nudge 1.4s ease-in-out infinite', opacity: arrow ? 1 : 0, transition: 'opacity 0.4s ease' }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 4v15M5 12l7 7 7-7" />
-            </svg>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/** the film reel: sprocket holes down both sides. The panel nearest the middle of the screen is the one in focus. */
-function FilmStrip() {
-  const holes = Array.from({ length: 80 });
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-  const [scrolled, setScrolled] = useState(false);
+/**
+ * About intro, after Melius's "Who we are" (via Mobbin): the headline stays pinned on the left while a column of
+ * captioned photo cards ("The Artist", "The Places"...) scrolls up the middle, and smaller photos drift past
+ * around it at different speeds. Hovering a card lifts it and zooms its photo. Phones get a plain stacked list.
+ */
+function AboutCollage() {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [p, setP] = useState(0);
+  const [vh, setVh] = useState(800);
+  const [trackH, setTrackH] = useState(2400);
+  const [desktop, setDesktop] = useState(true);
 
   useEffect(() => {
     let raf = 0;
-    const update = () => {
-      raf = 0;
-      const els = wrapRef.current?.querySelectorAll<HTMLElement>('[data-film-panel]');
-      if (!els) return;
-      const mid = window.innerHeight / 2;
-      let best = 0;
-      let bestD = Infinity;
-      els.forEach((el, k) => {
+    const tick = () => {
+      const el = outerRef.current;
+      if (el) {
         const r = el.getBoundingClientRect();
-        const d = Math.abs(r.top + r.height / 2 - mid);
-        if (d < bestD) {
-          bestD = d;
-          best = k;
-        }
-      });
-      setActive(window.scrollY < 40 ? 0 : best);
-      setScrolled(window.scrollY > 40);
+        const total = r.height - window.innerHeight;
+        setP(total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 0);
+      }
+      raf = requestAnimationFrame(tick);
     };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
+    const size = () => {
+      setVh(window.innerHeight);
+      setDesktop(window.innerWidth >= 900);
+      if (trackRef.current) setTrackH(trackRef.current.offsetHeight);
     };
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    size();
+    window.addEventListener('resize', size);
+    raf = requestAnimationFrame(tick);
+    const t = window.setTimeout(size, 600); // after images settle
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', size);
+      window.clearTimeout(t);
     };
-  }, []);
+  }, [desktop]);
+
+  const card = (pnl: (typeof PANELS)[number], i: number) => (
+    <article key={pnl.word} className="about-card group rounded-[20px] bg-[#ECEBE8] p-[8px] text-[#0A0A0A]">
+      <div className="overflow-hidden rounded-[14px]">
+        <img
+          src={pnl.img}
+          alt=""
+          loading={i < 2 ? 'eager' : 'lazy'}
+          className="block aspect-[4/3.4] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+          style={{ objectPosition: pnl.pos }}
+        />
+      </div>
+      <div className="px-[10px] pb-[10px] pt-[16px]">
+        <h3 className="text-[36px] md:text-[40px] leading-[1] tracking-[-0.02em]">
+          The <em className="font-light">{pnl.word}</em>
+        </h3>
+        <p className="mt-[10px] text-[16px] leading-[1.4] text-[#444]">{pnl.cap}</p>
+      </div>
+    </article>
+  );
+
+  const intro = (
+    <>
+      <p className="text-[16px] tracking-[0.12em] text-white/60 uppercase">About me</p>
+      <h1 className="mt-[20px] text-[48px] lg:text-[64px] leading-[1] font-bold tracking-[-0.02em] text-white">WHO IS HARBOR?</h1>
+      <p className="mt-[20px] text-[16px] md:text-[18px] leading-[1.4] text-white/70">
+        Words and design by <span className="whitespace-nowrap" style={{ color: YELLOW }}>Harbor (Jihyun) Kim</span>
+      </p>
+    </>
+  );
+
+  if (!desktop) {
+    return (
+      <section className="bg-black px-6 pt-[120px] pb-[80px]">
+        {intro}
+        <div className="mt-[40px] flex flex-col gap-[20px]">{PANELS.map(card)}</div>
+      </section>
+    );
+  }
+
+  // the card column moves from just under the top of the screen until its end has passed the middle
+  const travel = Math.max(0, trackH - vh * 0.55);
+  const colY = vh * 0.12 - p * travel;
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-full max-w-[760px] bg-[#111] px-[40px] md:px-[60px] py-[40px]">
-      <style>{`@keyframes film-nudge { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 10px); } }`}</style>
-      {(['left', 'right'] as const).map((s) => (
-        <div key={s} className={`absolute top-0 bottom-0 ${s === 'left' ? 'left-[10px] md:left-[18px]' : 'right-[10px] md:right-[18px]'} flex flex-col gap-[20px] overflow-hidden py-[20px]`} aria-hidden>
-          {holes.map((_, k) => (
-            <span key={k} className="block h-[14px] w-[20px] shrink-0 rounded-[3px] border border-[#555] bg-[#2a2a2a]" />
-          ))}
-        </div>
-      ))}
-      <div className="flex flex-col gap-[60px]">
-        {PANELS.map((p, i) => (
-          <FilmPanel key={p.cap} p={p} i={i} active={i === active} arrow={i === 0 ? !scrolled : undefined} />
+    <div ref={outerRef} className="relative bg-black" style={{ height: `${Math.max(260, (travel / vh) * 100 + 100)}vh` }}>
+      <style>{`.about-card { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; }
+        .about-card:hover { transform: translateY(-8px) rotate(-0.6deg); box-shadow: 0 24px 50px rgba(0,0,0,.45); }`}</style>
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* faint dot field on the right, like the reference */}
+        <div
+          aria-hidden
+          className="absolute inset-y-0 right-0 w-[40%]"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(255,255,255,0.14) 1px, transparent 1px)',
+            backgroundSize: '14px 14px',
+            maskImage: 'linear-gradient(90deg, transparent, #000 60%)',
+            WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 60%)',
+          }}
+        />
+
+        {/* pinned headline */}
+        <div className="absolute left-[4%] top-[18%] z-10 w-[22%]">{intro}</div>
+
+        {/* scattered photos, each at its own speed */}
+        {SCATTER.map((ph, i) => (
+          <div
+            key={i}
+            className="absolute overflow-hidden rounded-[10px] transition-transform duration-500 hover:scale-[1.06]"
+            style={{ left: `${ph.x}%`, width: `${ph.w}%`, top: 0, transform: `translate3d(0, ${ph.y + vh * 0.2 - p * travel * ph.speed}px, 0)`, zIndex: 1 }}
+          >
+            <img src={ph.src} alt="" loading="lazy" className="block aspect-[4/3] w-full object-cover" />
+          </div>
         ))}
+
+        {/* the card column */}
+        <div
+          ref={trackRef}
+          className="absolute left-1/2 top-0 z-[2] flex w-[min(400px,26vw)] -translate-x-1/2 flex-col gap-[20px] will-change-transform"
+          style={{ transform: `translate3d(-50%, ${colY}px, 0)` }}
+        >
+          {PANELS.map(card)}
+        </div>
+
+        {/* scroll hint until you start */}
+        <div className="absolute bottom-[30px] left-[4%] z-10 flex items-center gap-[10px] text-[16px] text-white/60" style={{ opacity: p < 0.02 ? 1 : 0, transition: 'opacity .4s ease' }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+            <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Scroll
+        </div>
       </div>
     </div>
   );
@@ -593,21 +635,8 @@ export function AboutPage(_props: { onClose?: () => void }) {
       {/* main site header (same as the home page) */}
       <FixedNav />
 
-      {/* 1 · film-strip intro on black */}
-      <section className="bg-black pt-[120px] pb-[80px]">
-        <FilmStrip />
-        <p className="mt-[40px] text-center text-[24px] text-white" aria-hidden>
-          ↓
-        </p>
-      </section>
-
-      {/* 2 · title */}
-      <section className="bg-black pb-[120px] text-center text-white">
-        <h1 className="mx-auto max-w-[900px] px-6 text-[44px] md:text-[72px] leading-[1.05] font-bold tracking-[-0.02em]">WHO IS HARBOR?</h1>
-        <p className="mt-[20px] text-[16px] md:text-[18px] tracking-[0.06em] uppercase text-white/70">
-          Words and design by <span style={{ color: YELLOW }}>Harbor (Jihyun) Kim</span>
-        </p>
-      </section>
+      {/* 1 · pinned headline + scrolling photo cards */}
+      <AboutCollage />
 
       {/* 3 · body with a drop cap */}
       <section style={{ background: PAPER }} className="pt-[100px] pb-[40px]">
