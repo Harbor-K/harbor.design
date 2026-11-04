@@ -502,7 +502,7 @@ function InstagramEmbed() {
           })}
         </div>
       </div>
-      <div className="mx-auto max-w-[800px] px-6">
+      <div className="mx-auto flex max-w-[800px] justify-end px-6">
         <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="mt-[30px] inline-flex rounded-lg bg-black px-[20px] py-[12px] text-[17px] font-medium text-white transition-opacity hover:opacity-85">
           See more @harbor_0328
         </a>
@@ -574,9 +574,11 @@ function CalEmbed() {
       <h2 className="text-[26px] md:text-[30px] leading-[1.2] font-bold">Want to talk? Book a call with me</h2>
       <p className="mt-[16px] text-[18px] leading-[1.6] text-[#333]">Pick a time for a 30-minute chat.</p>
       <div id="harbor-cal-inline" className="mt-[30px] w-full overflow-hidden rounded-[20px]" style={{ minHeight: 480 }} />
-      <a href={BOOK_CALL_URL} target="_blank" rel="noopener noreferrer" className="mt-[20px] inline-block text-[16px] underline underline-offset-4">
-        Open the booking page
-      </a>
+      <div className="mt-[20px] flex justify-end">
+        <a href={BOOK_CALL_URL} target="_blank" rel="noopener noreferrer" className="inline-block text-[16px] underline underline-offset-4">
+          Open the booking page
+        </a>
+      </div>
     </div>
   );
 }
