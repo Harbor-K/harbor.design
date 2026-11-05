@@ -4,14 +4,12 @@ import { FixedNav } from '../FixedNav';
 import { Contact } from '../sections/Contact';
 
 /**
- * About page (#/about), built after The Pudding's "How accurately are Asian Americans cast in Hollywood?":
- *   1. a film-strip intro — five panels slide down a film reel, each with a caption and a speech bubble
- *   2. big title + credit
- *   3. body text with a drop cap
- *   4. a scrollytelling timeline: year rows of company tiles stay pinned while step boxes scroll past;
- *      each step lights its tiles with a yellow frame
+ * About page (#/about):
+ *   1. pinned headline with scrolling photo cards (AboutCollage)
+ *   2. body text with a drop cap
+ *   3. a week in hours + Harbor's drawings
+ *   4. booking calendar, then the site footer
  * Black-and-white like the rest of the site, with the site's electric yellow for highlights.
- * Panel photos are Harbor's own photos (no drawn comics).
  */
 
 const HELV = '"Helvetica Neue", Helvetica, Arial, sans-serif';
@@ -38,44 +36,6 @@ const SCATTER = [
   { src: '/assets/trust-bank/sketch-photo.png', x: 70, y: 1820, w: 11, speed: 1.05 },
   { src: '/assets/about/drawing-9.jpg', x: 27.5, y: 2050, w: 8, speed: 0.85 },
 ] as const;
-
-/**
- * Career timeline, from Harbor's LinkedIn experience.
- * In each row, the year someone started is shown with the company logo (or a name tile when there is no logo yet);
- * the later years show project images. Grey "Image" tiles are temporary placeholders until real project images arrive.
- */
-type Group = 'pinetree' | 'eto' | 'upwork' | 'utrada' | 'study';
-type Tile = { g: Group; kind: 'logo' | 'img' | 'ph' | 'name'; src?: string; label: string };
-
-const T = {
-  pinetreeLogo: { g: 'pinetree', kind: 'logo', src: '/assets/main-v2/pinetree.webp', label: 'Pinetree' } as Tile,
-  pinetreeSite: { g: 'pinetree', kind: 'ph', label: 'Pinetree Company website' } as Tile,
-  etoLogo: { g: 'eto', kind: 'logo', src: '/assets/main-v2/eto-markets-logo.jpg', label: 'ETO Markets' } as Tile,
-  etoCrm: { g: 'eto', kind: 'img', src: '/assets/main-v2/eto-markets-v2.jpg', label: 'ETO Markets CRM' } as Tile,
-  upworkName: { g: 'upwork', kind: 'name', label: 'Upwork' } as Tile,
-  upworkPh: { g: 'upwork', kind: 'ph', label: 'Freelance project' } as Tile,
-  utradaLogo: { g: 'utrada', kind: 'logo', src: '/assets/main-v2/utrada-logo.jpg', label: 'UTrada' } as Tile,
-  utradaSite: { g: 'utrada', kind: 'img', src: '/assets/main-v2/utrada-v2.jpg', label: 'UTrada website' } as Tile,
-  trust: { g: 'study', kind: 'img', src: '/assets/main-v2/trust-bank.webp', label: 'Trust Bank' } as Tile,
-  gamecove: { g: 'study', kind: 'img', src: '/assets/main-v2/gamecove.webp', label: 'GameCove' } as Tile,
-};
-
-const YEARS: { y: string; tiles: Tile[] }[] = [
-  { y: '2021', tiles: [T.pinetreeLogo] },
-  { y: '2022', tiles: [T.pinetreeSite, T.etoLogo] },
-  { y: '2023', tiles: [T.etoCrm, T.upworkName] },
-  { y: '2024', tiles: [T.upworkPh, T.utradaLogo] },
-  { y: '2025', tiles: [T.upworkPh, T.utradaSite] },
-  { y: '2026', tiles: [T.utradaSite, T.trust, T.gamecove] },
-];
-
-const STEPS: { years: string; title: string; text: string; lit: Group[] }[] = [
-  { years: '2021–2022', title: 'Pinetree', text: 'Redesigned the website and its information architecture, and optimised the landing page.', lit: ['pinetree'] },
-  { years: '2022–2023', title: 'ETO Markets', text: 'Redesigned the CRM, website and apps in Sydney, and added support for 9 languages.', lit: ['eto'] },
-  { years: '2023–2025', title: 'Freelance on Upwork', text: 'Designed a website for an education agency and looked after a design system.', lit: ['upwork'] },
-  { years: '2024–2026', title: 'UTrada', text: 'Designed the website and apps for a global trading platform, from research to UI.', lit: ['utrada'] },
-  { years: '2026', title: 'Trust Bank · GameCove', text: 'A UX and AI product design programme: a rewards UX revamp and an AI analytics dashboard.', lit: ['study'] },
-];
 
 /** fades + slides a panel in when it enters the screen */
 function useInView<T extends HTMLElement>(threshold = 0.25) {
@@ -226,109 +186,6 @@ function AboutCollage() {
   );
 }
 
-function Timeline() {
-  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [active, setActive] = useState(-1);
-
-  // the step box closest to the middle of the screen is the active one, so text and tiles always match
-  useEffect(() => {
-    let raf = 0;
-    const read = () => {
-      raf = 0;
-      const mid = window.innerHeight / 2;
-      let best = -1;
-      let bestD = Infinity;
-      stepRefs.current.forEach((el, i) => {
-        if (!el) return;
-        const box = el.firstElementChild as HTMLElement | null;
-        const r = (box ?? el).getBoundingClientRect();
-        if (r.bottom < 0 || r.top > window.innerHeight) return;
-        const d = Math.abs(r.top + r.height / 2 - mid);
-        if (d < bestD) {
-          bestD = d;
-          best = i;
-        }
-      });
-      setActive(best);
-    };
-    const on = () => {
-      if (!raf) raf = requestAnimationFrame(read);
-    };
-    read();
-    window.addEventListener('scroll', on, { passive: true });
-    window.addEventListener('resize', on);
-    return () => {
-      window.removeEventListener('scroll', on);
-      window.removeEventListener('resize', on);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  const lit = active >= 0 ? STEPS[active].lit : [];
-
-  return (
-    <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-1 md:grid-cols-[400px_1fr] gap-[40px] px-6">
-      {/* step boxes that scroll past */}
-      <div className="relative z-10 order-2 md:order-1">
-        <div className="h-[20vh]" />
-        {STEPS.map((s, i) => (
-          <div key={s.title} ref={(el) => (stepRefs.current[i] = el)} data-i={i} className="flex min-h-[100vh] items-center">
-            <div
-              className="w-full border-[2px] border-black px-[24px] py-[20px] transition-[background-color,transform,opacity] duration-500 ease-out"
-              style={{ background: active === i ? '#FFFFFF' : 'rgba(255,255,255,0.6)', opacity: active === i ? 1 : 0.45, transform: active === i ? 'none' : 'scale(0.97)' }}
-            >
-              <p className="text-[16px] leading-[20px] text-[#6b6b70]">{s.years}</p>
-              <p className="mt-[10px] text-[22px] leading-[1.25] font-bold">
-                <mark className="px-[4px]" style={{ background: active === i ? YELLOW : 'transparent', transition: 'background 0.3s ease' }}>
-                  {s.title}
-                </mark>
-              </p>
-              <p className="mt-[10px] text-[18px] leading-[1.5]">{s.text}</p>
-            </div>
-          </div>
-        ))}
-        <div className="h-[20vh]" />
-      </div>
-
-      {/* pinned year chart */}
-      <div className="order-1 md:order-2">
-        <div className="sticky top-[calc(50vh-240px)] flex flex-col gap-[10px]">
-          {YEARS.map((row) => (
-            <div key={row.y} className="flex items-center gap-[20px]">
-              <span className="w-[50px] shrink-0 text-[16px] tabular-nums text-[#6b6b70]">{row.y}</span>
-              <div className="flex gap-[10px]">
-                {row.tiles.map((t, k) => {
-                  const on = lit.includes(t.g);
-                  const style: React.CSSProperties = {
-                    filter: on ? 'none' : 'grayscale(1)',
-                    opacity: active < 0 || on ? 1 : 0.35,
-                    outline: on ? `3px solid ${YELLOW}` : '1px solid rgba(0,0,0,0.15)',
-                    outlineOffset: on ? 2 : 0,
-                    transform: on ? 'scale(1.04)' : 'none',
-                  };
-                  const cls = 'h-[70px] w-[120px] shrink-0 transition-all duration-500 ease-out';
-                  if (t.kind === 'logo' || t.kind === 'img')
-                    return <img key={k} src={t.src} alt={t.label} title={t.label} className={`${cls} object-cover`} style={style} />;
-                  return (
-                    <span
-                      key={k}
-                      title={t.label}
-                      className={`${cls} flex items-center justify-center text-center text-[16px] leading-none ${t.kind === 'name' ? 'bg-black font-medium tracking-[-0.02em] text-white' : 'bg-[#cfcfcf] text-[#6b6b70]'}`}
-                      style={style}
-                    >
-                      {t.kind === 'name' ? t.label : 'Image'}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /**
  * Closing chart, after the reference's labelled stacked bar.
  * Hours are Harbor's rough estimate of a typical week (illustrative, not tracked data).
@@ -404,7 +261,7 @@ function WeekChart() {
               {g.items.map((w) => (
                 <li key={w.label} className="flex items-center gap-[10px] text-[16px] leading-[1.3]">
                   <span className="h-[14px] w-[14px] shrink-0 rounded-[3px] border border-black/15" style={{ background: w.bg }} aria-hidden />
-                  <span>{w.label}</span>
+                  <span className="whitespace-nowrap">{w.label}</span>
                   <span className="text-[#6b6b70]">{w.h}h</span>
                 </li>
               ))}
@@ -647,13 +504,8 @@ export function AboutPage(_props: { onClose?: () => void }) {
         </p>
       </section>
 
-      {/* 4 · scrollytelling timeline */}
-      <section style={{ background: PAPER }} className="pb-[60px]">
-        <Timeline />
-      </section>
-
       {/* 5 · a week in hours + Instagram */}
-      <section style={{ background: PAPER }} className="pb-[120px]">
+      <section style={{ background: PAPER }} className="pt-[80px] pb-[120px]">
         <WeekChart />
         <InstagramEmbed />
       </section>
